@@ -50,7 +50,7 @@ public class WujiangScreen extends ApplicationAdapter {
     // UI 元素引用 (如果需要动态修改)
     private Label levelLabel, expLabel;
     private Label forceValueLabel, cityValueLabel, salaryValueLabel;
-    private Label 体Value, 武Value, 知Value, 德Value, 统Value, 政Value, 忠Value;
+    private Label 体Value, 武Value, 知Value, 德Value, 统Value, 政Value, 忠Value,相性Value;
     private Label 兵种Value, 专精Value, 兵力Value, 机动Value;
 
     // 定义最小/目标世界尺寸，ExtendViewport将基于此进行扩展
@@ -291,55 +291,96 @@ public class WujiangScreen extends ApplicationAdapter {
     }
 
     private void populateMiddleColumn(Table middleColumn) {
-        middleColumn.top().pad(5);
+        middleColumn.top().pad(10);
 
-        Table personalAndAbilitySection = new Table(skin);
-        personalAndAbilitySection.top();
+        // ----- 1. 标题 & 选项卡 -----
+        Table header = new Table(skin);
+        // — 主标题 “主公”(老Demo上有)
+        Label titleLabel = new Label("主公", skin, "titleBoxStyle");
+        header.add(titleLabel)
+            .colspan(2)
+            .center()
+            .padBottom(10)
+            .row();
 
+        // — 选项卡按钮- 个人/能力
+        TextButton personalTab = new TextButton("个人", skin, "default");
+        TextButton abilityTab  = new TextButton("能力", skin, "default");
+        header.add(personalTab).padRight(5);
+        header.add(abilityTab);
+        middleColumn.add(header).fillX().row();
+
+        // ----- 2. 个人信息 -----
         Table personalInfo = new Table(skin);
+        // 势力
         personalInfo.add(new Label("势力", skin, "golden")).padRight(5);
         forceValueLabel = new Label("九爷", skin, "contentBoxStyle");
         personalInfo.add(forceValueLabel).padRight(20);
-
+        // 城市
         personalInfo.add(new Label("城市", skin, "golden")).padRight(5);
         cityValueLabel = new Label("洛阳", skin, "contentBoxStyle");
         personalInfo.add(cityValueLabel).padRight(20);
-
+        // 俸禄
         personalInfo.add(new Label("俸禄", skin, "golden")).padRight(5);
         salaryValueLabel = new Label("30/月", skin);
         personalInfo.add(salaryValueLabel);
-        personalAndAbilitySection.add(personalInfo).left().padBottom(10).row();
+        middleColumn.add(personalInfo).fillX().padBottom(10).row();
 
+        // ------ 3. 能力数值 ------
         Table abilities = new Table(skin);
-        abilities.add(new Label("体", skin)).pad(0, 5, 0, 10);
-        体Value = new Label("99", skin);
-        abilities.add(体Value).width(40).padRight(15);// 固定宽度在大屏幕上显得紧凑
 
-        abilities.add(new Label("武", skin)).pad(0, 5, 0, 10);
-        武Value = new Label("99", skin);
-        abilities.add(武Value).width(40).padRight(15);
+        abilities.add(new Label("体", skin, "golden"))
+            .padRight(5);
+        体Value = new Label("99", skin, "golden");
+        abilities.add(体Value)
+            .padRight(20);
 
-        abilities.add(new Label("知", skin)).pad(0, 5, 0, 10);
-        知Value = new Label("99", skin);
-        abilities.add(知Value).width(40).padRight(15);
+        abilities.add(new Label("武", skin, "golden"))
+            .padRight(5);// 留些空隙
+        武Value = new Label("99", skin, "golden");
+        abilities.add(武Value)
+            .padRight(20);
 
-        abilities.add(new Label("德", skin)).pad(0, 5, 0, 10);
-        德Value = new Label("99", skin);
-        abilities.add(德Value).width(40).row();
+        abilities.add(new Label("知", skin, "golden"))
+            .padRight(5);
+        知Value = new Label("99", skin, "golden");
+        abilities.add(知Value)
+            .padRight(20);
 
-        abilities.add(new Label("统", skin)).pad(0, 5, 5, 10);
-        统Value = new Label("99", skin);
-        abilities.add(统Value).width(40).padRight(15);
+        abilities.add(new Label("德", skin, "golden"))
+            .padRight(5);
+        德Value = new Label("99", skin, "golden");
+        abilities.add(德Value)
+            .padRight(20);
 
-        abilities.add(new Label("政", skin)).pad(0, 5, 5, 10);
-        政Value = new Label("99", skin);
-        abilities.add(政Value).width(40).padRight(15);
+        abilities.add(new Label("统", skin, "golden"))
+            .padRight(5);
+        统Value = new Label("99", skin, "golden");
+        abilities.add(统Value)
+            .padRight(20);
 
-        abilities.add(new Label("忠", skin)).pad(0, 5, 5, 10);
-        忠Value = new Label("99", skin);
-        abilities.add(忠Value).width(40);
-        personalAndAbilitySection.add(abilities).left().padBottom(20).row();
-        middleColumn.add(personalAndAbilitySection).fillX().row();
+        abilities.add(new Label("政", skin, "golden"))
+            .padRight(5);
+        政Value = new Label("99", skin, "golden");
+        abilities.add(政Value)
+            .padRight(20);
+
+        abilities.add(new Label("忠", skin, "golden"))
+            .padRight(5);
+        忠Value = new Label("99", skin, "golden");
+        abilities.add(忠Value)
+            .padRight(20);
+
+        abilities.add(new Label("相性", skin, "golden"))
+            .padRight(5);
+        相性Value = new Label("99", skin, "golden");
+        abilities.add(相性Value);
+
+
+        middleColumn.add(abilities)
+            .fillX()// 横向填满可用宽度
+            .padBottom(20)// 底部间距
+            .row();
 
 
         Table troopsAndEquipmentSection = new Table(skin);
