@@ -31,6 +31,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
     // Textures (应通过 AssetManager 管理，此处为演示直接加载)
     private Texture backgroundTexture;
+    private Texture portraitFrame;
     private Texture portraitTexture;
     private Texture genderMaleTexture;// 性别男图标
     // private Texture genderFemaleTexture;
@@ -44,7 +45,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
-    private float[] currentStats = {0.12f, 0.59f, 0.79f, 0.89f, 0.89f, 0.89f};
+    private float[] currentStats = {0.42f, 0.59f, 0.79f, 0.89f, 0.89f, 0.89f};
 
     // UI 元素引用 (如果需要动态修改)
     private Label levelLabel, expLabel;
@@ -111,6 +112,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // 素材纹理加载，建议使用AssetManager
         try {
             backgroundTexture = new Texture(Gdx.files.internal("bg_warlord_panel.png"));
+            portraitFrame = new Texture(Gdx.files.internal("portrait_frame.png"));
             portraitTexture = new Texture(Gdx.files.internal("portrait.png"));
             genderMaleTexture = new Texture(Gdx.files.internal("icon_male.png"));
 
@@ -181,29 +183,31 @@ public class WujiangScreen extends ApplicationAdapter {
     private void populateLeftColumn(Table leftColumn) {
         leftColumn.top().pad(10);
 
-//        Table portraitArea = new Table();
-//        Image portraitImg = new Image(portraitTexture);
-//        Image genderImg = new Image(genderMaleTexture);
-//
-//        Stack portraitStack = new Stack();
-//        portraitStack.add(portraitImg);
-//        Container<Image> genderContainer = new Container<>(genderImg);
-//        genderContainer.top().left().padLeft(5).padTop(5);
-//        portraitStack.add(genderContainer);
-//
-//        // 固定尺寸的元素在ExtendViewport下，如果屏幕很大，它们本身不会变大，
-//        // 而是其容器或周围的padding/expand空间会变大。
-//        // 如果希望这些元素也随屏幕尺寸有一定缩放，需要更复杂的尺寸计算逻辑。
-//        portraitArea.add(portraitStack).size(180, 180).center();
-//        leftColumn.add(portraitArea).padBottom(20).row();
+        // 顶部一级标题“武将资料”
+        // 跨列的大号红底白字
+        Label.LabelStyle titleStyle = new Label.LabelStyle(font, Color.WHITE);
+        // 添加了名为 "GeneralFrame" 的背景素材(测试，后续统一管理)
+        titleStyle.background = new NinePatchDrawable(new NinePatch(
+            new Texture(Gdx.files.internal("GeneralFrame.png")), 8,8,8,8));
+        skin.add("headerTitle", titleStyle);
+        Label pageTitle = new Label("武将资料", skin, "headerTitle");
+        pageTitle.setFontScale(1.1f);// 稍微放大
+        leftColumn.add(pageTitle)
+            .colspan(1)// 整列仅此一个
+            .center()
+            .padBottom(20)
+            .row();
 
-        // Group
+        // 人物基本资料（头像性别出仕状态）Group
         Group portraitGroup = new Group();
-
         // 头像
         Image portraitImg = new Image(portraitTexture);
+        Image portraitBgImg= new Image(portraitFrame);
+        portraitBgImg.setSize(185,185);
+        portraitBgImg.setPosition(0,0);
         portraitImg.setSize(180,180);
         portraitImg.setPosition(0,0);
+        portraitGroup.addActor(portraitBgImg);
         portraitGroup.addActor(portraitImg);
 
         // 性别圆框
@@ -213,12 +217,22 @@ public class WujiangScreen extends ApplicationAdapter {
         genderIcon.setPosition(-50, 180 - 50);
         portraitGroup.addActor(genderIcon);
 
-        // 自由布局组放回表格
+        // 自由布局组放回布局表格
         leftColumn.add(portraitGroup)
-            .size(180,180)
+            .size(185,185)
             .center()
             .padBottom(15)
             .row();
+
+        //出仕竖条：放在左侧中部
+        Label.LabelStyle greenBarStyle = new Label.LabelStyle(font, Color.GREEN);
+        greenBarStyle.background = new NinePatchDrawable(new NinePatch(
+            new Texture(Gdx.files.internal("green_vertical.png")), 4,4,4,4));
+        skin.add("greenBar", greenBarStyle);
+        Label statusBar = new Label("出仕", skin, "greenBar");
+        Container<Label> statusC = new Container<>(statusBar);
+        statusC.left().padLeft(-65).padTop(-110);
+        portraitGroup.addActor(statusC);
 
 
         // ----- 武将姓名及官位（后加）---------------
@@ -351,13 +365,14 @@ public class WujiangScreen extends ApplicationAdapter {
         troopsInfo.add(机动Value);
         troopsAndEquipmentSection.add(troopsInfo).left().padBottom(20).row();
 
+        // 装备
         Table equipmentInfo = new Table(skin);
         equipmentInfo.add(new Label("装备", skin)).colspan(4).left().padBottom(10).row();
 
         Stack weaponStack = new Stack();
         weaponStack.add(new Image(weaponSlotBgTexture));
         if (weaponItemTexture != null) weaponStack.add(new Image(weaponItemTexture));
-        equipmentInfo.add(weaponStack).size(80, 80).pad(5); // 固定尺寸
+        equipmentInfo.add(weaponStack).size(80, 80).pad(5);
 
         Stack armorStack = new Stack();
         armorStack.add(new Image(armorSlotBgTexture));
@@ -529,7 +544,7 @@ public class WujiangScreen extends ApplicationAdapter {
     // (RadarChartActor 代码保持不变)
     public static class RadarChartActor extends Actor {
         private ShapeRenderer shapeRenderer;
-        private float[] stats;// 6 个属性值 (0.0 to 1.0)\
+        private float[] stats;
         private Color axisColor = new Color(0.5f, 0.5f, 0.5f, 1f);// 轴线颜色
         private Color polygonColor = new Color(0.2f, 0.8f, 0.2f, 0.6f);// 属性多边形颜色
         private Color polygonBorderColor = new Color(0.3f, 1f, 0.3f, 1f);// 属性多边形边框颜色
