@@ -1,0 +1,635 @@
+package tech.bskplu.ui.generallore;
+
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+// import com.badlogic.gdx.utils.viewport.FitViewport; // 旧的 Viewport
+import com.badlogic.gdx.utils.viewport.ExtendViewport; // 新的 Viewport
+import com.badlogic.gdx.utils.viewport.Viewport;
+
+public class WujiangScreen extends ApplicationAdapter {
+
+    private Stage stage;
+    private Viewport viewport;
+    private Skin skin;
+    private BitmapFont font;
+
+    // Textures (应通过 AssetManager 管理，此处为演示直接加载)
+    private Texture backgroundTexture;
+    private Texture portraitTexture;
+    private Texture genderMaleTexture;// 性别男图标
+    // private Texture genderFemaleTexture;
+    private Texture greenBgTexture;// 技能绿色背景条
+    private Texture titleBgTexture;// 称号背景框 (如 "超级")
+    private Texture textBoxBackgroundTexture;//势力、城市等内容的背景框
+    private Texture weaponSlotBgTexture, armorSlotBgTexture, mountSlotBgTexture, bookSlotBgTexture;// 装备槽背景
+    private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
+    private Texture careerBoxBgTexture;// 战绩格子背景
+    private Texture buttonUpTexture, buttonDownTexture;// 按钮背景
+
+    // 自定义雷达图 Actor
+    private RadarChartActor radarChart;
+    private float[] currentStats = {0.12f, 0.59f, 0.79f, 0.89f, 0.89f, 0.89f};
+
+    // UI 元素引用 (如果需要动态修改)
+    private Label levelLabel, expLabel;
+    private Label forceValueLabel, cityValueLabel, salaryValueLabel;
+    private Label 体Value, 武Value, 知Value, 德Value, 统Value, 政Value, 忠Value;
+    private Label 兵种Value, 专精Value, 兵力Value, 机动Value;
+
+    // 定义最小/目标世界尺寸，ExtendViewport将基于此进行扩展
+    private static final float WORLD_WIDTH = 1680;
+    private static final float WORLD_HEIGHT = 900;
+
+    public WujiangScreen() {
+        // 构造函数中可以初始化一些东西，但主要加载和UI构建在 show() 中
+    }
+
+    @Override
+    public void create() {
+        // 修改 Viewport 类型为 ExtendViewport
+        // ExtendViewport 会保持世界宽高比，并在需要时扩展世界区域以填充屏幕，而不是留黑边。
+        // 它使用最小世界宽度和高度。如果屏幕更大，世界也会在那个维度上更大。
+        viewport = new ExtendViewport(WORLD_WIDTH, WORLD_HEIGHT, new OrthographicCamera());
+        stage = new Stage(viewport);
+        Gdx.input.setInputProcessor(stage);
+
+        // 1. 加载资源
+        loadAssets(); // 加载纹理等
+
+        // 2. 创建 Skin
+        createSkin();
+
+        // 3. 创建主背景图片
+        Image backgroundImage = new Image(backgroundTexture);
+        backgroundImage.setFillParent(true);// 背景将填充整个舞台区域，包括ExtendViewport扩展出的部分
+        stage.addActor(backgroundImage);// 背景置于最底层
+
+        // 4. 创建根 Table
+        Table rootTable = new Table();
+        rootTable.setFillParent(true);// 根Table也将填充整个舞台
+        // rootTable.setDebug(true);// 开启调试线，完成后关闭
+        stage.addActor(rootTable);
+
+        // 5. 创建三列
+        Table leftColumn = new Table(skin);
+        Table middleColumn = new Table(skin);
+        Table rightColumn = new Table(skin);
+
+        // leftColumn.setDebug(true);
+        // middleColumn.setDebug(true);
+        // rightColumn.setDebug(true);
+
+        // 6. 填充每一列
+        populateLeftColumn(leftColumn);
+        populateMiddleColumn(middleColumn);
+        populateRightColumn(rightColumn);
+
+        // 7. 将列添加到根 Table
+        // 使用百分比宽度，这对于ExtendViewport是合适的，列会根据根Table的实际宽度（可能已扩展）分配空间
+        rootTable.add(leftColumn).prefWidth(Value.percentWidth(0.20f, rootTable)).expandY().fillY().padLeft(20).padTop(20).padBottom(20);
+        rootTable.add(middleColumn).prefWidth(Value.percentWidth(0.52f, rootTable)).expandY().fillY().padTop(20).padBottom(20).padLeft(10).padRight(10);
+        rootTable.add(rightColumn).prefWidth(Value.percentWidth(0.28f, rootTable)).expandY().fillY().padRight(20).padTop(20).padBottom(20);
+    }
+
+    private void loadAssets() {
+        // 素材纹理加载，建议使用AssetManager
+        try {
+            backgroundTexture = new Texture(Gdx.files.internal("bg_warlord_panel.png"));
+            portraitTexture = new Texture(Gdx.files.internal("portrait.png"));
+            genderMaleTexture = new Texture(Gdx.files.internal("icon_male.png"));
+
+            greenBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
+            titleBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
+            textBoxBackgroundTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
+
+            weaponSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
+            armorSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
+            mountSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
+            bookSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
+
+            weaponItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
+            armorItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
+            mountItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
+            // bookItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
+
+            careerBoxBgTexture = new Texture(Gdx.files.internal("stat_win.png"));
+
+            buttonUpTexture = new Texture(Gdx.files.internal("button_down.png"));
+            buttonDownTexture = new Texture(Gdx.files.internal("button_up.png"));
+
+            // 字体初始化，默认Libgdx默认字体，不支持中文
+            font = new BitmapFont();
+
+        } catch (Exception e) {
+            Gdx.app.error("AssetLoad", "Error loading textures or font", e);
+        }
+    }
+
+    private void createSkin() {
+        skin = new Skin();
+        skin.add("default-font", font, BitmapFont.class);
+
+        Label.LabelStyle defaultLabelStyle = new Label.LabelStyle(font, Color.WHITE);
+        skin.add("default", defaultLabelStyle);
+
+        Label.LabelStyle goldenLabelStyle = new Label.LabelStyle(font, Color.GOLD);
+        skin.add("golden", goldenLabelStyle);
+
+        NinePatchDrawable skillBgDrawable = new NinePatchDrawable(new NinePatch(greenBgTexture, 6, 6, 2, 2));
+        Label.LabelStyle skillLabelStyle = new Label.LabelStyle(font, Color.WHITE);
+        skillLabelStyle.background = skillBgDrawable;
+        skin.add("skillStyle", skillLabelStyle);
+
+        NinePatchDrawable titleBgDrawable = new NinePatchDrawable(new NinePatch(titleBgTexture, 6, 6, 2, 2));
+        Label.LabelStyle titleLabelStyle = new Label.LabelStyle(font, Color.BLACK);
+        titleLabelStyle.background = titleBgDrawable;
+        skin.add("titleBoxStyle", titleLabelStyle);
+
+        TextureRegionDrawable textBoxDrawable = new TextureRegionDrawable(new TextureRegion(textBoxBackgroundTexture));
+        Label.LabelStyle contentBoxStyle = new Label.LabelStyle(font, Color.WHITE);
+        contentBoxStyle.background = textBoxDrawable;
+        skin.add("contentBoxStyle", contentBoxStyle);
+
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.font = font;
+        textButtonStyle.fontColor = Color.WHITE;
+        textButtonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonUpTexture));
+        textButtonStyle.down = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
+        textButtonStyle.over = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
+        skin.add("default", textButtonStyle);
+
+        ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
+        skin.add("default", scrollPaneStyle);
+    }
+
+    private void populateLeftColumn(Table leftColumn) {
+        leftColumn.top().pad(10);
+
+//        Table portraitArea = new Table();
+//        Image portraitImg = new Image(portraitTexture);
+//        Image genderImg = new Image(genderMaleTexture);
+//
+//        Stack portraitStack = new Stack();
+//        portraitStack.add(portraitImg);
+//        Container<Image> genderContainer = new Container<>(genderImg);
+//        genderContainer.top().left().padLeft(5).padTop(5);
+//        portraitStack.add(genderContainer);
+//
+//        // 固定尺寸的元素在ExtendViewport下，如果屏幕很大，它们本身不会变大，
+//        // 而是其容器或周围的padding/expand空间会变大。
+//        // 如果希望这些元素也随屏幕尺寸有一定缩放，需要更复杂的尺寸计算逻辑。
+//        portraitArea.add(portraitStack).size(180, 180).center();
+//        leftColumn.add(portraitArea).padBottom(20).row();
+
+        // Group
+        Group portraitGroup = new Group();
+
+        // 头像
+        Image portraitImg = new Image(portraitTexture);
+        portraitImg.setSize(180,180);
+        portraitImg.setPosition(0,0);
+        portraitGroup.addActor(portraitImg);
+
+        // 性别圆框
+        Image genderIcon = new Image(genderMaleTexture);
+        genderIcon.setSize(40,40);
+        // “挂”在头像左上角外面一点，x = -iconW/2, y = portraitH - iconH/2
+        genderIcon.setPosition(-50, 180 - 50);
+        portraitGroup.addActor(genderIcon);
+
+        // 自由布局组放回表格
+        leftColumn.add(portraitGroup)
+            .size(180,180)
+            .center()
+            .padBottom(15)
+            .row();
+
+
+        // ----- 武将姓名及官位（后加）---------------
+        leftColumn.row();
+        leftColumn.add(new Label("九爷", skin, "titleBoxStyle")).padTop(5).row();
+        leftColumn.add(new Label("无官职", skin, "contentBoxStyle")).padTop(5).row();
+
+        radarChart = new RadarChartActor(currentStats);
+        leftColumn.add(radarChart).width(200).height(180).padBottom(20).row();
+
+        Table levelExpTable = new Table(skin);
+        levelExpTable.add(new Label("等级", skin)).left().padRight(10);
+        levelLabel = new Label("8", skin);
+        levelExpTable.add(levelLabel).left().row();
+
+        ProgressBar.ProgressBarStyle progressBarStyle = new ProgressBar.ProgressBarStyle();
+        Pixmap greenPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        greenPixmap.setColor(Color.GREEN);
+        greenPixmap.fill();
+        progressBarStyle.knobBefore = new TextureRegionDrawable(new TextureRegion(new Texture(greenPixmap)));
+        greenPixmap.dispose();
+
+        Pixmap grayPixmap = new Pixmap(1,1, Pixmap.Format.RGBA8888);
+        grayPixmap.setColor(Color.DARK_GRAY);
+        grayPixmap.fill();
+        progressBarStyle.background = new TextureRegionDrawable(new TextureRegion(new Texture(grayPixmap)));
+        grayPixmap.dispose();
+
+        ProgressBar expBar = new ProgressBar(0, 500, 1, false, progressBarStyle);
+        expBar.setValue(500);
+        // 让经验条可以横向填充可用空间，但给一个最小和首选宽度
+        levelExpTable.add(expBar).colspan(2).minWidth(150).prefWidth(180).expandX().fillX().height(20).padTop(5).row();
+
+        expLabel = new Label("500", skin);
+        levelExpTable.add(expLabel).colspan(2).center().padTop(5);
+
+        leftColumn.add(levelExpTable).padBottom(30).row();
+
+        Table titlesTable = new Table(skin);
+        titlesTable.add(new Label("称号:", skin)).left().padRight(10);
+        titlesTable.add(new Label("超级", skin, "titleBoxStyle")).pad(3);
+        titlesTable.add(new Label("人将", skin, "titleBoxStyle")).pad(3);
+        titlesTable.add(new Label("五行", skin, "titleBoxStyle")).pad(3);
+        // fillX让称号行能利用横向空间
+        leftColumn.add(titlesTable).fillX().padBottom(10).row();
+
+        Table skillsTable = new Table(skin);
+        skillsTable.add(new Label("技能:", skin)).left().padRight(10).top();
+
+        Table skillItemsTable = new Table();
+        skillItemsTable.add(new Label("铁壁", skin, "skillStyle")).pad(3);
+        skillItemsTable.add(new Label("无双", skin, "skillStyle")).pad(3);
+        skillsTable.add(skillItemsTable).left();
+        // fillX 和 expandY().top() 帮助技能部分在垂直方向上良好定位并利用横向空间
+        leftColumn.add(skillsTable).fillX().expandY().top();
+    }
+
+    private void populateMiddleColumn(Table middleColumn) {
+        middleColumn.top().pad(5);
+
+        Table personalAndAbilitySection = new Table(skin);
+        personalAndAbilitySection.top();
+
+        Table personalInfo = new Table(skin);
+        personalInfo.add(new Label("势力", skin, "golden")).padRight(5);
+        forceValueLabel = new Label("九爷", skin, "contentBoxStyle");
+        personalInfo.add(forceValueLabel).padRight(20);
+
+        personalInfo.add(new Label("城市", skin, "golden")).padRight(5);
+        cityValueLabel = new Label("洛阳", skin, "contentBoxStyle");
+        personalInfo.add(cityValueLabel).padRight(20);
+
+        personalInfo.add(new Label("俸禄", skin, "golden")).padRight(5);
+        salaryValueLabel = new Label("30/月", skin);
+        personalInfo.add(salaryValueLabel);
+        personalAndAbilitySection.add(personalInfo).left().padBottom(10).row();
+
+        Table abilities = new Table(skin);
+        abilities.add(new Label("体", skin)).pad(0, 5, 0, 10);
+        体Value = new Label("99", skin);
+        abilities.add(体Value).width(40).padRight(15);// 固定宽度在大屏幕上显得紧凑
+
+        abilities.add(new Label("武", skin)).pad(0, 5, 0, 10);
+        武Value = new Label("99", skin);
+        abilities.add(武Value).width(40).padRight(15);
+
+        abilities.add(new Label("知", skin)).pad(0, 5, 0, 10);
+        知Value = new Label("99", skin);
+        abilities.add(知Value).width(40).padRight(15);
+
+        abilities.add(new Label("德", skin)).pad(0, 5, 0, 10);
+        德Value = new Label("99", skin);
+        abilities.add(德Value).width(40).row();
+
+        abilities.add(new Label("统", skin)).pad(0, 5, 5, 10);
+        统Value = new Label("99", skin);
+        abilities.add(统Value).width(40).padRight(15);
+
+        abilities.add(new Label("政", skin)).pad(0, 5, 5, 10);
+        政Value = new Label("99", skin);
+        abilities.add(政Value).width(40).padRight(15);
+
+        abilities.add(new Label("忠", skin)).pad(0, 5, 5, 10);
+        忠Value = new Label("99", skin);
+        abilities.add(忠Value).width(40);
+        personalAndAbilitySection.add(abilities).left().padBottom(20).row();
+        middleColumn.add(personalAndAbilitySection).fillX().row();
+
+
+        Table troopsAndEquipmentSection = new Table(skin);
+        troopsAndEquipmentSection.top();
+
+        Table troopsInfo = new Table(skin);
+        troopsInfo.add(new Label("部队", skin)).colspan(8).left().padBottom(5).row();
+
+        troopsInfo.add(new Label("兵种", skin)).padRight(5);
+        兵种Value = new Label("山军", skin, "skillStyle");
+        troopsInfo.add(兵种Value).padRight(15);
+
+        troopsInfo.add(new Label("专精", skin)).padRight(5);
+        专精Value = new Label("剑", skin, "skillStyle");
+        troopsInfo.add(专精Value).padRight(15);
+
+        troopsInfo.add(new Label("兵力", skin)).padRight(5);
+        兵力Value = new Label("3000", skin);
+        troopsInfo.add(兵力Value).padRight(15);
+
+        troopsInfo.add(new Label("机动", skin)).padRight(5);
+        机动Value = new Label("20", skin);
+        troopsInfo.add(机动Value);
+        troopsAndEquipmentSection.add(troopsInfo).left().padBottom(20).row();
+
+        Table equipmentInfo = new Table(skin);
+        equipmentInfo.add(new Label("装备", skin)).colspan(4).left().padBottom(10).row();
+
+        Stack weaponStack = new Stack();
+        weaponStack.add(new Image(weaponSlotBgTexture));
+        if (weaponItemTexture != null) weaponStack.add(new Image(weaponItemTexture));
+        equipmentInfo.add(weaponStack).size(80, 80).pad(5); // 固定尺寸
+
+        Stack armorStack = new Stack();
+        armorStack.add(new Image(armorSlotBgTexture));
+        if (armorItemTexture != null) armorStack.add(new Image(armorItemTexture));
+        equipmentInfo.add(armorStack).size(80, 80).pad(5);
+
+        Stack mountStack = new Stack();
+        mountStack.add(new Image(mountSlotBgTexture));
+        if (mountItemTexture != null) mountStack.add(new Image(mountItemTexture));
+        equipmentInfo.add(mountStack).size(80, 80).pad(5);
+
+        Stack bookStack = new Stack();
+        bookStack.add(new Image(bookSlotBgTexture));
+        // if (bookItemTexture != null) bookStack.add(new Image(bookItemTexture));
+        equipmentInfo.add(bookStack).size(80, 80).pad(5);
+
+        troopsAndEquipmentSection.add(equipmentInfo).left().padBottom(30).row();
+        middleColumn.add(troopsAndEquipmentSection).fillX().row();
+
+
+        Table careerSection = new Table(skin);
+        careerSection.top();
+        careerSection.add(new Label("生涯", skin)).colspan(12).left().padBottom(10).row();
+
+        String[] careerStatNamesTop = {"单挑胜利", "计策成功", "战役胜利", "武将击杀", "武将俘虏", "内政成功"};
+        String[] careerStatValuesTop = {"0", "0", "0", "0", "0", "0"};
+
+        String[] careerStatNamesBottom = {"单挑失败", "计策失败", "战役失败", "武将死亡", "武将被俘", "外交成功"};
+        String[] careerStatValuesBottom = {"0", "0", "0", "0", "0", "0"};
+
+        // 固定尺寸
+        final float statBoxWidth = 60;
+        final float statBoxHeight = 35;
+
+        for (int i = 0; i < careerStatNamesTop.length; i++) {
+            careerSection.add(new Label(careerStatNamesTop[i], skin)).width(80).center();
+            Stack statBox = new Stack();
+            statBox.add(new Image(careerBoxBgTexture));
+            statBox.add(new Label(careerStatValuesTop[i], skin));
+            careerSection.add(statBox).width(statBoxWidth).height(statBoxHeight).padRight(i == careerStatNamesTop.length - 1 ? 0 : 10);
+        }
+        careerSection.row().padTop(5);
+
+        for (int i = 0; i < careerStatNamesBottom.length; i++) {
+            careerSection.add(new Label(careerStatNamesBottom[i], skin)).width(80).center();
+            Stack statBox = new Stack();
+            statBox.add(new Image(careerBoxBgTexture));
+            statBox.add(new Label(careerStatValuesBottom[i], skin));
+            careerSection.add(statBox).width(statBoxWidth).height(statBoxHeight).padRight(i == careerStatNamesBottom.length - 1 ? 0 : 10);
+        }
+        careerSection.row().padTop(15);
+        careerSection.add(new Label("白兵击杀", skin)).width(80).center();
+        Stack troopKillBox = new Stack(new Image(careerBoxBgTexture), new Label("0", skin));
+        careerSection.add(troopKillBox).width(statBoxWidth).height(statBoxHeight).padRight(10);
+
+        careerSection.add(new Label("计策击杀", skin)).width(80).center();
+        Stack stratKillBox = new Stack(new Image(careerBoxBgTexture), new Label("0", skin));
+        careerSection.add(stratKillBox).width(statBoxWidth).height(statBoxHeight);
+
+        // expandY().top() 让生涯部分在垂直方向上良好定位
+        middleColumn.add(careerSection).fillX().expandY().top();
+    }
+
+    private void populateRightColumn(Table rightColumn) {
+        rightColumn.top().pad(10);
+
+        TextButton relationsButton = new TextButton("人物关系", skin, "default");
+        // 使用 prefWidth(Value.percentWidth(...)) 使按钮宽度能响应列宽变化
+        rightColumn.add(relationsButton).prefWidth(Value.percentWidth(0.8f, rightColumn)).height(60).center().padBottom(20).row();
+
+        String biographyExample = "这里是武将的生平事迹...\n可以有很多行文字。\n" +
+            "关羽（约160－220年），本字长生，后改字云长，河东郡解县（今山西运城）人。\n" +
+            "东汉末年名将，早期跟随刘备辗转各地，曾被曹操生擒，于白马坡斩杀袁绍大将颜良，与张飞一同被称为万人敌。\n" +
+            "赤壁之战后，刘备助东吴周瑜攻打南郡曹仁，别遣关羽绝北道，阻挡曹操援军，曹仁退走后，关羽被刘备任命为襄阳太守。\n" +
+            "刘备入益州，关羽留守荆州。\n建安二十四年，关羽围襄樊，曹操派于禁前来增援，关羽擒获于禁，斩杀庞德，威震华夏，曹操曾想迁都以避其锐。\n" +
+            "后曹操派徐晃前来增援，东吴吕蒙又偷袭荆州，关羽腹背受敌，兵败被杀。";
+        Label biographyLabel = new Label(biographyExample, skin);
+        biographyLabel.setWrap(true);
+        biographyLabel.setAlignment(com.badlogic.gdx.utils.Align.topLeft);
+
+        ScrollPane bioScrollPane = new ScrollPane(biographyLabel, skin);
+        bioScrollPane.setFadeScrollBars(false);
+        // 垂直滚动
+        bioScrollPane.setScrollingDisabled(true, false);
+
+        Table bioContainer = new Table(skin);
+        bioContainer.add(new Label("武将列传", skin)).colspan(3).center().padBottom(10).row();
+        // expand().fill() 使得 ScrollPane 可以填充可用空间
+        bioContainer.add(bioScrollPane).expand().fill().pad(5);
+
+        // expandY().fill() 让列传部分占据右列的主要垂直空间
+        rightColumn.add(bioContainer).expandY().fill().padBottom(20).row();
+
+
+        Table buttonGroup = new Table(skin);
+        TextButton prevButton = new TextButton("上一页", skin, "default");
+        TextButton nextButton = new TextButton("下一页", skin, "default");
+        TextButton backButton = new TextButton("返回", skin, "default");
+
+        // 给按钮一些合理的 preferred width，并允许它们在按钮组Table中扩展（如果Table本身会扩展）
+        buttonGroup.add(prevButton).prefWidth(100).height(50).pad(5).expandX();
+        buttonGroup.add(nextButton).prefWidth(100).height(50).pad(5).expandX();
+        buttonGroup.add(backButton).prefWidth(100).height(50).pad(5).expandX();
+
+        // fillX() 使按钮组横向填充，bottom() 使其靠下
+        rightColumn.add(buttonGroup).fillX().padBottom(10).bottom();
+    }
+
+
+    @Override
+    public void render() {
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // 更新视口的世界尺寸和相机（如果窗口大小改变）
+        // viewport.apply(); // 通常在 resize 中调用 update，然后 stage.draw 会用 viewport 的相机
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        stage.draw();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        if (viewport != null) {
+            // 如果为true，则将相机居中。
+            // 对于ExtendViewport，这会根据新的屏幕大小更新其世界大小，
+            // 以及如果设置了最小/最大尺寸，则居中相机。
+            viewport.update(width, height, true);
+        }
+        // 如果有其他需要根据屏幕尺寸动态调整的UI元素（比如字体大小），可以在这里处理
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+
+    @Override
+    public void dispose() {
+        if (stage != null) stage.dispose();
+        if (skin != null) skin.dispose();
+        if (font != null) font.dispose();
+
+        if (backgroundTexture != null) backgroundTexture.dispose();
+        if (portraitTexture != null) portraitTexture.dispose();
+        if (genderMaleTexture != null) genderMaleTexture.dispose();
+        if (greenBgTexture != null) greenBgTexture.dispose();
+        if (titleBgTexture != null) titleBgTexture.dispose();
+        if (textBoxBackgroundTexture != null) textBoxBackgroundTexture.dispose();
+        if (weaponSlotBgTexture != null) weaponSlotBgTexture.dispose();
+        if (armorSlotBgTexture != null) armorSlotBgTexture.dispose();
+        if (mountSlotBgTexture != null) mountSlotBgTexture.dispose();
+        if (bookSlotBgTexture != null) bookSlotBgTexture.dispose();
+        if (weaponItemTexture != null) weaponItemTexture.dispose();
+        if (armorItemTexture != null) armorItemTexture.dispose();
+        if (mountItemTexture != null) mountItemTexture.dispose();
+        // if (bookItemTexture != null) bookItemTexture.dispose();
+        if (careerBoxBgTexture != null) careerBoxBgTexture.dispose();
+        if (buttonUpTexture != null) buttonUpTexture.dispose();
+        if (buttonDownTexture != null) buttonDownTexture.dispose();
+
+        if (radarChart != null) radarChart.dispose();
+    }
+
+    // --- 自定义雷达图 Actor ---
+    // (RadarChartActor 代码保持不变)
+    public static class RadarChartActor extends Actor {
+        private ShapeRenderer shapeRenderer;
+        private float[] stats;// 6 个属性值 (0.0 to 1.0)\
+        private Color axisColor = new Color(0.5f, 0.5f, 0.5f, 1f);// 轴线颜色
+        private Color polygonColor = new Color(0.2f, 0.8f, 0.2f, 0.6f);// 属性多边形颜色
+        private Color polygonBorderColor = new Color(0.3f, 1f, 0.3f, 1f);// 属性多边形边框颜色
+
+        public RadarChartActor(float[] initialStats) {
+            this.stats = initialStats;
+            this.shapeRenderer = new ShapeRenderer();
+        }
+
+        public void setStats(float[] newStats) {
+            this.stats = newStats;
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            batch.end();
+
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
+            // 应用Actor的位置和原点
+            shapeRenderer.translate(getX() + getOriginX(), getY() + getOriginY(), 0);
+            shapeRenderer.rotate(0,0,1,getRotation());
+            shapeRenderer.scale(getScaleX(), getScaleY(), 1);
+            shapeRenderer.translate(-getOriginX(), -getOriginY(), 0);
+
+
+            float centerX = getWidth() / 2;
+            float centerY = getHeight() / 2;
+            float radius = Math.min(getWidth(), getHeight()) / 2 * 0.9f;
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(axisColor);
+
+            for (int i = 0; i < 6; i++) {
+                float angleRad = (float) (Math.PI / 2 - (i * Math.PI / 3));
+                float outerX = centerX + radius * (float) Math.cos(angleRad);
+                float outerY = centerY + radius * (float) Math.sin(angleRad);
+                shapeRenderer.line(centerX, centerY, outerX, outerY);
+            }
+
+            int concentricLevels = 4;
+            for (int level = 1; level <= concentricLevels; level++) {
+                float currentRadius = radius * ((float) level / concentricLevels);
+                for (int i = 0; i < 6; i++) {
+                    float angle1Rad = (float) (Math.PI / 2 - (i * Math.PI / 3));
+                    float angle2Rad = (float) (Math.PI / 2 - ((i + 1) * Math.PI / 3));
+                    float x1 = centerX + currentRadius * (float) Math.cos(angle1Rad);
+                    float y1 = centerY + currentRadius * (float) Math.sin(angle1Rad);
+                    float x2 = centerX + currentRadius * (float) Math.cos(angle2Rad);
+                    float y2 = centerY + currentRadius * (float) Math.sin(angle2Rad);
+                    shapeRenderer.line(x1, y1, x2, y2);
+                }
+            }
+            shapeRenderer.end();
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(polygonColor);
+            for (int i = 0; i < 6; i++) {
+                if (stats == null || stats.length < 6) break;
+                float statValue = Math.max(0, Math.min(1, stats[i]));
+
+                float angle1Rad = (float) (Math.PI / 2 - (i * Math.PI / 3));
+                float statRadius1 = radius * statValue;
+                float x1 = centerX + statRadius1 * (float) Math.cos(angle1Rad);
+                float y1 = centerY + statRadius1 * (float) Math.sin(angle1Rad);
+
+                int next = (i + 1) % 6;
+                float statValueNext = Math.max(0, Math.min(1, stats[next]));
+                float angle2Rad = (float) (Math.PI / 2 - (next * Math.PI / 3));
+                float statRadius2 = radius * statValueNext;
+                float x2 = centerX + statRadius2 * (float) Math.cos(angle2Rad);
+                float y2 = centerY + statRadius2 * (float) Math.sin(angle2Rad);
+
+                shapeRenderer.triangle(centerX, centerY, x1, y1, x2, y2);
+            }
+            shapeRenderer.end();
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(polygonBorderColor);
+            for (int i = 0; i < 6; i++) {
+                if (stats == null || stats.length < 6) break;
+                float statValue = Math.max(0, Math.min(1, stats[i]));
+                float angle1Rad = (float) (Math.PI / 2 - (i * Math.PI / 3));
+                float x1 = centerX + radius * statValue * (float) Math.cos(angle1Rad);
+                float y1 = centerY + radius * statValue * (float) Math.sin(angle1Rad);
+
+                int next = (i + 1) % 6;
+                float statValueNext = Math.max(0, Math.min(1, stats[next]));
+                float angle2Rad = (float) (Math.PI / 2 - (next * Math.PI / 3));
+                float x2 = centerX + radius * statValueNext * (float) Math.cos(angle2Rad);
+                float y2 = centerY + radius * statValueNext * (float) Math.sin(angle2Rad);
+                shapeRenderer.line(x1, y1, x2, y2);
+            }
+            shapeRenderer.end();
+
+            batch.begin();
+        }
+
+        public void dispose() {
+            if (shapeRenderer != null) shapeRenderer.dispose();
+        }
+    }
+}
