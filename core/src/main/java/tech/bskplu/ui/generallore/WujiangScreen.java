@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 // import com.badlogic.gdx.utils.viewport.FitViewport; // 旧的 Viewport
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport; // 新的 Viewport
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -37,6 +38,7 @@ public class WujiangScreen extends ApplicationAdapter {
     // private Texture genderFemaleTexture;
     private Texture greenBgTexture;// 技能绿色背景条
     private Texture titleBgTexture;// 称号背景框 (如 "超级")
+    private Texture separatorTexture;// 大分割栏
     private Texture textBoxBackgroundTexture;//势力、城市等内容的背景框
     private Texture weaponSlotBgTexture, armorSlotBgTexture, mountSlotBgTexture, bookSlotBgTexture;// 装备槽背景
     private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
@@ -50,7 +52,7 @@ public class WujiangScreen extends ApplicationAdapter {
     // UI 元素引用 (如果需要动态修改)
     private Label levelLabel, expLabel;
     private Label forceValueLabel, cityValueLabel, salaryValueLabel;
-    private Label 体Value, 武Value, 知Value, 德Value, 统Value, 政Value, 忠Value,相性Value;
+    private Label 体Value, 武Value, 知Value, 德Value, 统Value, 政Value, 忠Value, 相性Value;
     private Label 兵种Value, 专精Value, 兵力Value, 机动Value;
 
     // 定义最小/目标世界尺寸，ExtendViewport将基于此进行扩展
@@ -115,19 +117,20 @@ public class WujiangScreen extends ApplicationAdapter {
             portraitFrame = new Texture(Gdx.files.internal("portrait_frame.png"));
             portraitTexture = new Texture(Gdx.files.internal("portrait.png"));
             genderMaleTexture = new Texture(Gdx.files.internal("icon_male.png"));
+            separatorTexture = new Texture(Gdx.files.internal("divider_h.png"));
 
             greenBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
             titleBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
             textBoxBackgroundTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
 
             weaponSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
-            armorSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
-            mountSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
-            bookSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
+            armorSlotBgTexture = new Texture(Gdx.files.internal("armor_slot.png"));
+            mountSlotBgTexture = new Texture(Gdx.files.internal("mount_slot.png"));
+            bookSlotBgTexture = new Texture(Gdx.files.internal("accessory_slot.png"));
 
-            weaponItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
-            armorItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
-            mountItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
+            weaponItemTexture = new Texture(Gdx.files.internal("ArmyBreakingSword.png"));
+            armorItemTexture = new Texture(Gdx.files.internal("ObsidianArmor.png"));
+            mountItemTexture = new Texture(Gdx.files.internal("RedHare.png"));
             // bookItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
 
             careerBoxBgTexture = new Texture(Gdx.files.internal("stat_win.png"));
@@ -188,7 +191,7 @@ public class WujiangScreen extends ApplicationAdapter {
         Label.LabelStyle titleStyle = new Label.LabelStyle(font, Color.WHITE);
         // 添加了名为 "GeneralFrame" 的背景素材(测试，后续统一管理)
         titleStyle.background = new NinePatchDrawable(new NinePatch(
-            new Texture(Gdx.files.internal("GeneralFrame.png")), 8,8,8,8));
+            new Texture(Gdx.files.internal("GeneralFrame.png")), 8, 8, 8, 8));
         skin.add("headerTitle", titleStyle);
         Label pageTitle = new Label("武将资料", skin, "headerTitle");
         pageTitle.setFontScale(1.1f);// 稍微放大
@@ -202,24 +205,24 @@ public class WujiangScreen extends ApplicationAdapter {
         Group portraitGroup = new Group();
         // 头像
         Image portraitImg = new Image(portraitTexture);
-        Image portraitBgImg= new Image(portraitFrame);
-        portraitBgImg.setSize(185,185);
-        portraitBgImg.setPosition(0,0);
-        portraitImg.setSize(180,180);
-        portraitImg.setPosition(0,0);
+        Image portraitBgImg = new Image(portraitFrame);
+        portraitBgImg.setSize(185, 185);
+        portraitBgImg.setPosition(0, 0);
+        portraitImg.setSize(180, 180);
+        portraitImg.setPosition(0, 0);
         portraitGroup.addActor(portraitBgImg);
         portraitGroup.addActor(portraitImg);
 
         // 性别圆框
         Image genderIcon = new Image(genderMaleTexture);
-        genderIcon.setSize(40,40);
+        genderIcon.setSize(40, 40);
         // “挂”在头像左上角外面一点，x = -iconW/2, y = portraitH - iconH/2
         genderIcon.setPosition(-50, 180 - 50);
         portraitGroup.addActor(genderIcon);
 
         // 自由布局组放回布局表格
         leftColumn.add(portraitGroup)
-            .size(185,185)
+            .size(185, 185)
             .center()
             .padBottom(15)
             .row();
@@ -227,7 +230,7 @@ public class WujiangScreen extends ApplicationAdapter {
         //出仕竖条：放在左侧中部
         Label.LabelStyle greenBarStyle = new Label.LabelStyle(font, Color.GREEN);
         greenBarStyle.background = new NinePatchDrawable(new NinePatch(
-            new Texture(Gdx.files.internal("green_vertical.png")), 4,4,4,4));
+            new Texture(Gdx.files.internal("green_vertical.png")), 4, 4, 4, 4));
         skin.add("greenBar", greenBarStyle);
         Label statusBar = new Label("出仕", skin, "greenBar");
         Container<Label> statusC = new Container<>(statusBar);
@@ -255,7 +258,7 @@ public class WujiangScreen extends ApplicationAdapter {
         progressBarStyle.knobBefore = new TextureRegionDrawable(new TextureRegion(new Texture(greenPixmap)));
         greenPixmap.dispose();
 
-        Pixmap grayPixmap = new Pixmap(1,1, Pixmap.Format.RGBA8888);
+        Pixmap grayPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         grayPixmap.setColor(Color.DARK_GRAY);
         grayPixmap.fill();
         progressBarStyle.background = new TextureRegionDrawable(new TextureRegion(new Texture(grayPixmap)));
@@ -305,7 +308,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
         // — 选项卡按钮- 个人/能力
         TextButton personalTab = new TextButton("个人", skin, "default");
-        TextButton abilityTab  = new TextButton("能力", skin, "default");
+        TextButton abilityTab = new TextButton("能力", skin, "default");
         header.add(personalTab).padRight(5);
         header.add(abilityTab);
         middleColumn.add(header).fillX().row();
@@ -383,98 +386,149 @@ public class WujiangScreen extends ApplicationAdapter {
             .row();
 
 
-        Table troopsAndEquipmentSection = new Table(skin);
-        troopsAndEquipmentSection.top();
+        // ----- 4. 部队信息 -----
+        Table troopsSection = new Table(skin);
+        // 板块标题
+        troopsSection.add(new Label("部队", skin, "titleBoxStyle"))
+            .left().padBottom(5).row();
 
+        // 兵种 / 专精 / 兵力 / 机动
         Table troopsInfo = new Table(skin);
-        troopsInfo.add(new Label("部队", skin)).colspan(8).left().padBottom(5).row();
 
         troopsInfo.add(new Label("兵种", skin)).padRight(5);
-        兵种Value = new Label("山军", skin, "skillStyle");
-        troopsInfo.add(兵种Value).padRight(15);
+        兵种Value = new Label("山军", skin, "contentBoxStyle");
+        troopsInfo.add(兵种Value).padRight(20);
 
         troopsInfo.add(new Label("专精", skin)).padRight(5);
-        专精Value = new Label("剑", skin, "skillStyle");
-        troopsInfo.add(专精Value).padRight(15);
+        专精Value = new Label("剑", skin, "contentBoxStyle");
+        troopsInfo.add(专精Value).padRight(20);
 
         troopsInfo.add(new Label("兵力", skin)).padRight(5);
-        兵力Value = new Label("3000", skin);
-        troopsInfo.add(兵力Value).padRight(15);
+        兵力Value = new Label("3000", skin, "contentBoxStyle");
+        troopsInfo.add(兵力Value).padRight(20);
 
         troopsInfo.add(new Label("机动", skin)).padRight(5);
-        机动Value = new Label("20", skin);
+        机动Value = new Label("20", skin, "contentBoxStyle");
         troopsInfo.add(机动Value);
-        troopsAndEquipmentSection.add(troopsInfo).left().padBottom(20).row();
+        troopsSection.add(troopsInfo).left().padBottom(20).row();
 
-        // 装备
-        Table equipmentInfo = new Table(skin);
-        equipmentInfo.add(new Label("装备", skin)).colspan(4).left().padBottom(10).row();
+        middleColumn.add(troopsSection).fillX().row();
 
-        Stack weaponStack = new Stack();
-        weaponStack.add(new Image(weaponSlotBgTexture));
-        if (weaponItemTexture != null) weaponStack.add(new Image(weaponItemTexture));
-        equipmentInfo.add(weaponStack).size(80, 80).pad(5);
+        // 大分割栏
+        middleColumn.add(new Image(separatorTexture))
+            .fillX()
+            .padBottom(10)
+            .row();
 
-        Stack armorStack = new Stack();
-        armorStack.add(new Image(armorSlotBgTexture));
-        if (armorItemTexture != null) armorStack.add(new Image(armorItemTexture));
-        equipmentInfo.add(armorStack).size(80, 80).pad(5);
+        // ----- 5. 装备槽 -----
+        Table equipmentSection = new Table(skin);
+        equipmentSection.add(new Label("装备", skin, "titleBoxStyle"))
+            .left().padBottom(5).row();
 
-        Stack mountStack = new Stack();
-        mountStack.add(new Image(mountSlotBgTexture));
-        if (mountItemTexture != null) mountStack.add(new Image(mountItemTexture));
-        equipmentInfo.add(mountStack).size(80, 80).pad(5);
+        Table equipGrid = new Table(skin);
 
-        Stack bookStack = new Stack();
-        bookStack.add(new Image(bookSlotBgTexture));
-        // if (bookItemTexture != null) bookStack.add(new Image(bookItemTexture));
-        equipmentInfo.add(bookStack).size(80, 80).pad(5);
+        Texture[] slotBgTextures = new Texture[]{
+            weaponSlotBgTexture,
+            armorSlotBgTexture,
+            mountSlotBgTexture,
+            bookSlotBgTexture
+        };
 
-        troopsAndEquipmentSection.add(equipmentInfo).left().padBottom(30).row();
-        middleColumn.add(troopsAndEquipmentSection).fillX().row();
+        Texture[] itemTextures = new Texture[]{
+            weaponItemTexture,
+            armorItemTexture,
+            mountItemTexture,
+            bookItemTexture
+        };
+
+        for (int i = 0; i < slotBgTextures.length; i++) {
+            Texture slotBg = slotBgTextures[i];
+            Texture itemTex = itemTextures[i];
+
+            Stack slot = new Stack();
+
+            slot.add(new Image(slotBg));
+
+            if (itemTex != null) {
+                Image itemImg = new Image(itemTex);
+                itemImg.setScaling(Scaling.fit);
+                slot.add(itemImg);
+            }
+
+            equipGrid.add(slot)
+                .size(160, 160)
+                .pad(5);
+        }
+
+        equipmentSection.add(equipGrid)
+            .left()
+            .padBottom(20)
+            .row();
+
+        middleColumn.add(equipmentSection).fillX().row();
+
+        // 大分割栏
+        middleColumn.add(new Image(separatorTexture))
+            .fillX()
+            .padBottom(10)
+            .row();
 
 
+        // ----- 6. 生涯战绩 -----
         Table careerSection = new Table(skin);
-        careerSection.top();
-        careerSection.add(new Label("生涯", skin)).colspan(12).left().padBottom(10).row();
 
-        String[] careerStatNamesTop = {"单挑胜利", "计策成功", "战役胜利", "武将击杀", "武将俘虏", "内政成功"};
-        String[] careerStatValuesTop = {"0", "0", "0", "0", "0", "0"};
+        careerSection.add(new Label("生涯", skin, "titleBoxStyle"))
+            .colspan(8).left().padBottom(10).row();
 
-        String[] careerStatNamesBottom = {"单挑失败", "计策失败", "战役失败", "武将死亡", "武将被俘", "外交成功"};
-        String[] careerStatValuesBottom = {"0", "0", "0", "0", "0", "0"};
-
-        // 固定尺寸
-        final float statBoxWidth = 60;
-        final float statBoxHeight = 35;
+        String[] careerStatNamesTop = {
+            "白兵胜利", "单挑胜利", "计策成功", "战役胜利",
+            "武将击杀", "武将俘虏", "内政成功", "白兵击杀"
+        };
+        String[] careerStatNamesBottom = {
+            "白兵失败", "单挑失败", "计策失败", "战役失败",
+            "武将死亡", "武将被俘", "外交成功", "计策击杀"
+        };
 
         for (int i = 0; i < careerStatNamesTop.length; i++) {
-            careerSection.add(new Label(careerStatNamesTop[i], skin)).width(80).center();
-            Stack statBox = new Stack();
-            statBox.add(new Image(careerBoxBgTexture));
-            statBox.add(new Label(careerStatValuesTop[i], skin));
-            careerSection.add(statBox).width(statBoxWidth).height(statBoxHeight).padRight(i == careerStatNamesTop.length - 1 ? 0 : 10);
+            // 字段名
+            careerSection.add(new Label(careerStatNamesTop[i], skin))
+                .padRight(5);
+            // 数值框
+            Stack box = new Stack(
+                new Image(careerBoxBgTexture),
+                new Label("0", skin)
+            );
+            if (i == careerStatNamesTop.length - 1) {
+                // 最后一项“白兵击杀”用大格
+                careerSection.add(box).size(75, 35).padRight(10);
+            } else {
+                // 其余用小格
+                careerSection.add(box).size(55, 35).padRight(10);
+            }
         }
+        // 换行并加点顶距
         careerSection.row().padTop(5);
 
         for (int i = 0; i < careerStatNamesBottom.length; i++) {
-            careerSection.add(new Label(careerStatNamesBottom[i], skin)).width(80).center();
-            Stack statBox = new Stack();
-            statBox.add(new Image(careerBoxBgTexture));
-            statBox.add(new Label(careerStatValuesBottom[i], skin));
-            careerSection.add(statBox).width(statBoxWidth).height(statBoxHeight).padRight(i == careerStatNamesBottom.length - 1 ? 0 : 10);
+            careerSection.add(new Label(careerStatNamesBottom[i], skin))
+                .padRight(5);
+            Stack box = new Stack(
+                new Image(careerBoxBgTexture),
+                new Label("0", skin)
+            );
+            if (i == careerStatNamesBottom.length - 1) {
+                // 最后一项“计策击杀”用大格
+                careerSection.add(box).size(75, 35).padRight(10);
+            } else {
+                careerSection.add(box).size(55, 35).padRight(10);
+            }
         }
-        careerSection.row().padTop(15);
-        careerSection.add(new Label("白兵击杀", skin)).width(80).center();
-        Stack troopKillBox = new Stack(new Image(careerBoxBgTexture), new Label("0", skin));
-        careerSection.add(troopKillBox).width(statBoxWidth).height(statBoxHeight).padRight(10);
 
-        careerSection.add(new Label("计策击杀", skin)).width(80).center();
-        Stack stratKillBox = new Stack(new Image(careerBoxBgTexture), new Label("0", skin));
-        careerSection.add(stratKillBox).width(statBoxWidth).height(statBoxHeight);
-
-        // expandY().top() 让生涯部分在垂直方向上良好定位
-        middleColumn.add(careerSection).fillX().expandY().top();
+        middleColumn.add(careerSection)
+            .fillX()
+            .expandY()
+            .top()
+            .row();
     }
 
     private void populateRightColumn(Table rightColumn) {
@@ -607,7 +661,7 @@ public class WujiangScreen extends ApplicationAdapter {
             shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
             // 应用Actor的位置和原点
             shapeRenderer.translate(getX() + getOriginX(), getY() + getOriginY(), 0);
-            shapeRenderer.rotate(0,0,1,getRotation());
+            shapeRenderer.rotate(0, 0, 1, getRotation());
             shapeRenderer.scale(getScaleX(), getScaleY(), 1);
             shapeRenderer.translate(-getOriginX(), -getOriginY(), 0);
 
