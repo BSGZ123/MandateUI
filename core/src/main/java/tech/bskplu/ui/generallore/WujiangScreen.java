@@ -16,9 +16,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 // import com.badlogic.gdx.utils.viewport.FitViewport; // 旧的 Viewport
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport; // 新的 Viewport
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -534,9 +536,18 @@ public class WujiangScreen extends ApplicationAdapter {
     private void populateRightColumn(Table rightColumn) {
         rightColumn.top().pad(10);
 
+        // ----- 1. 人物关系按钮 -----
         TextButton relationsButton = new TextButton("人物关系", skin, "default");
-        // 使用 prefWidth(Value.percentWidth(...)) 使按钮宽度能响应列宽变化
-        rightColumn.add(relationsButton).prefWidth(Value.percentWidth(0.8f, rightColumn)).height(60).center().padBottom(20).row();
+        rightColumn.add(relationsButton)
+            .prefWidth(Value.percentWidth(0.8f, rightColumn))
+            .height(60)
+            .center()
+            .padBottom(20)
+            .row();
+
+        // ----- 2. 列传显示区 -----
+        Texture biographyBg = new Texture(Gdx.files.internal("scroll_bg.png"));
+        Image bioBgImage = new Image(biographyBg);
 
         String biographyExample = "这里是武将的生平事迹...\n可以有很多行文字。\n" +
             "关羽（约160－220年），本字长生，后改字云长，河东郡解县（今山西运城）人。\n" +
@@ -546,34 +557,87 @@ public class WujiangScreen extends ApplicationAdapter {
             "后曹操派徐晃前来增援，东吴吕蒙又偷袭荆州，关羽腹背受敌，兵败被杀。";
         Label biographyLabel = new Label(biographyExample, skin);
         biographyLabel.setWrap(true);
-        biographyLabel.setAlignment(com.badlogic.gdx.utils.Align.topLeft);
+        biographyLabel.setAlignment(Align.topLeft);
 
-        ScrollPane bioScrollPane = new ScrollPane(biographyLabel, skin);
-        bioScrollPane.setFadeScrollBars(false);
-        // 垂直滚动
-        bioScrollPane.setScrollingDisabled(true, false);
+        Stack bioStack = new Stack();
+        bioStack.add(bioBgImage);
+        // 把 Label 放在 bioStack 的内边距容器里，以留出背景四周的边框
+        Container<Label> bioTextContainer = new Container<>(biographyLabel);
+        bioTextContainer.pad(20);
+        bioTextContainer.fill();
+        bioStack.add(bioTextContainer);
 
-        Table bioContainer = new Table(skin);
-        bioContainer.add(new Label("武将列传", skin)).colspan(3).center().padBottom(10).row();
-        // expand().fill() 使得 ScrollPane 可以填充可用空间
-        bioContainer.add(bioScrollPane).expand().fill().pad(5);
+        // 2.4 添加到右列，并让它占据中部主要空间
+        rightColumn.add(bioStack)
+            .expand()
+            .fillX()
+            .height(Value.percentHeight(0.6f, rightColumn))  // 根据需要调整高度占比
+            .row();
 
-        // expandY().fill() 让列传部分占据右列的主要垂直空间
-        rightColumn.add(bioContainer).expandY().fill().padBottom(20).row();
+        // ----- 3. 翻页 & 返回 按钮组 -----
+        Table navButtons = new Table(skin);
 
-
-        Table buttonGroup = new Table(skin);
         TextButton prevButton = new TextButton("上一页", skin, "default");
         TextButton nextButton = new TextButton("下一页", skin, "default");
         TextButton backButton = new TextButton("返回", skin, "default");
 
-        // 给按钮一些合理的 preferred width，并允许它们在按钮组Table中扩展（如果Table本身会扩展）
-        buttonGroup.add(prevButton).prefWidth(100).height(50).pad(5).expandX();
-        buttonGroup.add(nextButton).prefWidth(100).height(50).pad(5).expandX();
-        buttonGroup.add(backButton).prefWidth(100).height(50).pad(5).expandX();
+        // 点击时更新 biographyLabel.setText(...)，此处示例
+        prevButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                biographyLabel.setText(getPreviousBiography());
+            }
+        });
+        nextButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                biographyLabel.setText(getNextBiography());
+            }
+        });
+        backButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // 返回上个界面
+                //backToPreviousScreen();
+            }
+        });
 
-        // fillX() 使按钮组横向填充，bottom() 使其靠下
-        rightColumn.add(buttonGroup).fillX().padBottom(10).bottom();
+        // 平分三份宽度
+        navButtons.add(prevButton)
+            .prefWidth(Value.percentWidth(0.3f, navButtons))
+            .height(50)
+            .pad(5)
+            .expandX();
+        navButtons.add(nextButton)
+            .prefWidth(Value.percentWidth(0.3f, navButtons))
+            .height(50)
+            .pad(5)
+            .expandX();
+        navButtons.add(backButton)
+            .prefWidth(Value.percentWidth(0.3f, navButtons))
+            .height(50)
+            .pad(5)
+            .expandX();
+
+        rightColumn.add(navButtons)
+            .fillX()
+            .bottom()
+            .padTop(10)
+            .row();
+    }
+
+    private String getPreviousBiography() {
+        // TODO: 实现翻页逻辑，返回对应页的文本
+        return "这是上一页的列传内容……";
+    }
+
+    private String getNextBiography() {
+        // TODO: 实现翻页逻辑，返回对应页的文本
+        return "这是下一页的列传内容……";
+    }
+
+    private void backToPreviousScreen() {
+        // game.setScreen(previousScreen);
     }
 
 
