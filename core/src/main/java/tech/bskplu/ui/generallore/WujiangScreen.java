@@ -19,10 +19,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-// import com.badlogic.gdx.utils.viewport.FitViewport; // 旧的 Viewport
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.viewport.ExtendViewport; // 新的 Viewport
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class WujiangScreen extends ApplicationAdapter {
@@ -46,6 +45,9 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
     private Texture careerBoxBgTexture;// 战绩格子背景
     private Texture buttonUpTexture, buttonDownTexture;// 按钮背景
+    private Texture generalFrameTexture;   // “武将资料” 头框
+    private Texture greenVerticalTexture;  // 绿色竖条
+    private Texture biographyBgTexture;    // 列传背景
 
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
@@ -140,6 +142,10 @@ public class WujiangScreen extends ApplicationAdapter {
             buttonUpTexture = new Texture(Gdx.files.internal("button_down.png"));
             buttonDownTexture = new Texture(Gdx.files.internal("button_up.png"));
 
+            generalFrameTexture = new Texture(Gdx.files.internal("GeneralFrame.png"));
+            greenVerticalTexture= new Texture(Gdx.files.internal("green_vertical.png"));
+            biographyBgTexture  = new Texture(Gdx.files.internal("scroll_bg.png"));
+
             // 字体初始化，默认Libgdx默认字体，不支持中文
             font = new BitmapFont();
 
@@ -192,8 +198,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // 跨列的大号红底白字
         Label.LabelStyle titleStyle = new Label.LabelStyle(font, Color.WHITE);
         // 添加了名为 "GeneralFrame" 的背景素材(测试，后续统一管理)
-        titleStyle.background = new NinePatchDrawable(new NinePatch(
-            new Texture(Gdx.files.internal("GeneralFrame.png")), 8, 8, 8, 8));
+        titleStyle.background = new NinePatchDrawable(new NinePatch(generalFrameTexture, 8, 8, 8, 8));
         skin.add("headerTitle", titleStyle);
         Label pageTitle = new Label("武将资料", skin, "headerTitle");
         pageTitle.setFontScale(1.1f);// 稍微放大
@@ -232,7 +237,7 @@ public class WujiangScreen extends ApplicationAdapter {
         //出仕竖条：放在左侧中部
         Label.LabelStyle greenBarStyle = new Label.LabelStyle(font, Color.GREEN);
         greenBarStyle.background = new NinePatchDrawable(new NinePatch(
-            new Texture(Gdx.files.internal("green_vertical.png")), 4, 4, 4, 4));
+            new NinePatch(greenVerticalTexture, 4, 4, 4, 4)));
         skin.add("greenBar", greenBarStyle);
         Label statusBar = new Label("出仕", skin, "greenBar");
         Container<Label> statusC = new Container<>(statusBar);
@@ -546,8 +551,7 @@ public class WujiangScreen extends ApplicationAdapter {
             .row();
 
         // ----- 2. 列传显示区 -----
-        Texture biographyBg = new Texture(Gdx.files.internal("scroll_bg.png"));
-        Image bioBgImage = new Image(biographyBg);
+        Image bioBgImage = new Image(biographyBgTexture);
 
         String biographyExample = "这里是武将的生平事迹...\n可以有很多行文字。\n" +
             "关羽（约160－220年），本字长生，后改字云长，河东郡解县（今山西运城）人。\n" +
@@ -695,6 +699,10 @@ public class WujiangScreen extends ApplicationAdapter {
         if (careerBoxBgTexture != null) careerBoxBgTexture.dispose();
         if (buttonUpTexture != null) buttonUpTexture.dispose();
         if (buttonDownTexture != null) buttonDownTexture.dispose();
+
+        if (generalFrameTexture  != null) generalFrameTexture.dispose();
+        if (greenVerticalTexture != null) greenVerticalTexture.dispose();
+        if (biographyBgTexture   != null) biographyBgTexture.dispose();
 
         if (radarChart != null) radarChart.dispose();
     }
