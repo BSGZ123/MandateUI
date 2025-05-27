@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -60,7 +61,7 @@ public class WujiangScreen extends ApplicationAdapter {
     private Label 兵种Value, 专精Value, 兵力Value, 机动Value;
 
     // 定义最小/目标世界尺寸，ExtendViewport将基于此进行扩展
-    private static final float WORLD_WIDTH = 1680;
+    private static final float WORLD_WIDTH = 1600;
     private static final float WORLD_HEIGHT = 900;
 
     public WujiangScreen() {
@@ -146,8 +147,20 @@ public class WujiangScreen extends ApplicationAdapter {
             greenVerticalTexture= new Texture(Gdx.files.internal("green_vertical.png"));
             biographyBgTexture  = new Texture(Gdx.files.internal("scroll_bg.png"));
 
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            param.size = 16;
+            param.magFilter = Texture.TextureFilter.Linear;
+            param.minFilter = Texture.TextureFilter.Linear;
+
+            param.characters =
+                FreeTypeFontGenerator.DEFAULT_CHARS +
+                    "武将资料等级称号技能主公势力城市俸禄体武知德统政忠相性部队兵种专精兵力机动白兵胜利失败单挑计策战役武将击杀俘虏死亡外交成功失败生涯人物关系上一页下一页返回出仕超级人将五行";
+
+
             // 字体初始化，默认Libgdx默认字体，不支持中文
-            font = new BitmapFont();
+            font = generator.generateFont(param);
+            generator.dispose();
 
         } catch (Exception e) {
             Gdx.app.error("AssetLoad", "Error loading textures or font", e);
