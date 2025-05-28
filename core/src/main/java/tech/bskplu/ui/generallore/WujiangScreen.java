@@ -46,9 +46,9 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
     private Texture careerBoxBgTexture;// 战绩格子背景
     private Texture buttonUpTexture, buttonDownTexture;// 按钮背景
-    private Texture generalFrameTexture;   // “武将资料” 头框
-    private Texture greenVerticalTexture;  // 绿色竖条
-    private Texture biographyBgTexture;    // 列传背景
+    private Texture generalFrameTexture;// “武将资料” 头框
+    private Texture greenVerticalTexture;// 绿色竖条
+    private Texture biographyBgTexture;// 列传背景
 
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
@@ -57,11 +57,13 @@ public class WujiangScreen extends ApplicationAdapter {
     // UI 元素引用 (如果需要动态修改)
     private Label levelLabel, expLabel;
     private Label forceValueLabel, cityValueLabel, salaryValueLabel;
-    private Label 体Value, 武Value, 知Value, 德Value, 统Value, 政Value, 忠Value, 相性Value;
-    private Label 兵种Value, 专精Value, 兵力Value, 机动Value;
+
+    // 体 武 知 德 统 政 忠 相性
+    private Label bodyLabel, martialLabel, intellectLabel, virtueLabel, leadershipLabel, politicsLabel, loyaltyLabel, affinityLabel;
+    private Label troopTypeLabel, specialtyLabel, troopCountLabel, mobilityLabel;
 
     // 定义最小/目标世界尺寸，ExtendViewport将基于此进行扩展
-    private static final float WORLD_WIDTH = 1600;
+    private static final float WORLD_WIDTH = 1880;
     private static final float WORLD_HEIGHT = 900;
 
     public WujiangScreen() {
@@ -153,9 +155,10 @@ public class WujiangScreen extends ApplicationAdapter {
             param.magFilter = Texture.TextureFilter.Linear;
             param.minFilter = Texture.TextureFilter.Linear;
 
-            param.characters =
-                FreeTypeFontGenerator.DEFAULT_CHARS +
-                    "武将资料等级称号技能主公势力城市俸禄体武知德统政忠相性部队兵种专精兵力机动白兵胜利失败单挑计策战役武将击杀俘虏死亡外交成功失败生涯人物关系上一页下一页返回出仕超级人将五行";
+            param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
+                "/武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
+
 
 
             // 字体初始化，默认Libgdx默认字体，不支持中文
@@ -352,52 +355,37 @@ public class WujiangScreen extends ApplicationAdapter {
         // ------ 3. 能力数值 ------
         Table abilities = new Table(skin);
 
-        abilities.add(new Label("体", skin, "golden"))
-            .padRight(5);
-        体Value = new Label("99", skin, "golden");
-        abilities.add(体Value)
-            .padRight(20);
+        abilities.add(new Label("体", skin, "golden")).padRight(5);
+        bodyLabel = new Label("99", skin, "golden");
+        abilities.add(bodyLabel).padRight(20);
 
-        abilities.add(new Label("武", skin, "golden"))
-            .padRight(5);// 留些空隙
-        武Value = new Label("99", skin, "golden");
-        abilities.add(武Value)
-            .padRight(20);
+        abilities.add(new Label("武", skin, "golden")).padRight(5);
+        martialLabel = new Label("99", skin, "golden");
+        abilities.add(martialLabel).padRight(20);
 
-        abilities.add(new Label("知", skin, "golden"))
-            .padRight(5);
-        知Value = new Label("99", skin, "golden");
-        abilities.add(知Value)
-            .padRight(20);
+        abilities.add(new Label("知", skin, "golden")).padRight(5);
+        intellectLabel = new Label("99", skin, "golden");
+        abilities.add(intellectLabel).padRight(20);
 
-        abilities.add(new Label("德", skin, "golden"))
-            .padRight(5);
-        德Value = new Label("99", skin, "golden");
-        abilities.add(德Value)
-            .padRight(20);
+        abilities.add(new Label("德", skin, "golden")).padRight(5);
+        virtueLabel = new Label("99", skin, "golden");
+        abilities.add(virtueLabel).padRight(20);
 
-        abilities.add(new Label("统", skin, "golden"))
-            .padRight(5);
-        统Value = new Label("99", skin, "golden");
-        abilities.add(统Value)
-            .padRight(20);
+        abilities.add(new Label("统", skin, "golden")).padRight(5);
+        leadershipLabel = new Label("99", skin, "golden");
+        abilities.add(leadershipLabel).padRight(20);
 
-        abilities.add(new Label("政", skin, "golden"))
-            .padRight(5);
-        政Value = new Label("99", skin, "golden");
-        abilities.add(政Value)
-            .padRight(20);
+        abilities.add(new Label("政", skin, "golden")).padRight(5);
+        politicsLabel = new Label("99", skin, "golden");
+        abilities.add(politicsLabel).padRight(20);
 
-        abilities.add(new Label("忠", skin, "golden"))
-            .padRight(5);
-        忠Value = new Label("99", skin, "golden");
-        abilities.add(忠Value)
-            .padRight(20);
+        abilities.add(new Label("忠", skin, "golden")).padRight(5);
+        loyaltyLabel = new Label("99", skin, "golden");
+        abilities.add(loyaltyLabel).padRight(20);
 
-        abilities.add(new Label("相性", skin, "golden"))
-            .padRight(5);
-        相性Value = new Label("99", skin, "golden");
-        abilities.add(相性Value);
+        abilities.add(new Label("相性", skin, "golden")).padRight(5);
+        affinityLabel = new Label("99", skin, "golden");
+        abilities.add(affinityLabel);
 
 
         middleColumn.add(abilities)
@@ -416,20 +404,20 @@ public class WujiangScreen extends ApplicationAdapter {
         Table troopsInfo = new Table(skin);
 
         troopsInfo.add(new Label("兵种", skin)).padRight(5);
-        兵种Value = new Label("山军", skin, "contentBoxStyle");
-        troopsInfo.add(兵种Value).padRight(20);
+        troopTypeLabel = new Label("山军", skin, "contentBoxStyle");
+        troopsInfo.add(troopTypeLabel).padRight(20);
 
         troopsInfo.add(new Label("专精", skin)).padRight(5);
-        专精Value = new Label("剑", skin, "contentBoxStyle");
-        troopsInfo.add(专精Value).padRight(20);
+        specialtyLabel = new Label("剑", skin, "contentBoxStyle");
+        troopsInfo.add(specialtyLabel).padRight(20);
 
         troopsInfo.add(new Label("兵力", skin)).padRight(5);
-        兵力Value = new Label("3000", skin, "contentBoxStyle");
-        troopsInfo.add(兵力Value).padRight(20);
+        troopCountLabel = new Label("3000", skin, "contentBoxStyle");
+        troopsInfo.add(troopCountLabel).padRight(20);
 
         troopsInfo.add(new Label("机动", skin)).padRight(5);
-        机动Value = new Label("20", skin, "contentBoxStyle");
-        troopsInfo.add(机动Value);
+        mobilityLabel = new Label("20", skin, "contentBoxStyle");
+        troopsInfo.add(mobilityLabel);
         troopsSection.add(troopsInfo).left().padBottom(20).row();
 
         middleColumn.add(troopsSection).fillX().row();
@@ -566,7 +554,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // ----- 2. 列传显示区 -----
         Image bioBgImage = new Image(biographyBgTexture);
 
-        String biographyExample = "这里是武将的生平事迹...\n可以有很多行文字。\n" +
+        String biographyExample = "这里是武将的生平事迹...\n" +
             "关羽（约160－220年），本字长生，后改字云长，河东郡解县（今山西运城）人。\n" +
             "东汉末年名将，早期跟随刘备辗转各地，曾被曹操生擒，于白马坡斩杀袁绍大将颜良，与张飞一同被称为万人敌。\n" +
             "赤壁之战后，刘备助东吴周瑜攻打南郡曹仁，别遣关羽绝北道，阻挡曹操援军，曹仁退走后，关羽被刘备任命为襄阳太守。\n" +
