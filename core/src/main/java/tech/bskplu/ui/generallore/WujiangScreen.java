@@ -244,48 +244,81 @@ public class WujiangScreen extends ApplicationAdapter {
             .fillX()
             .row();
 
-        // 人物基本资料（头像性别出仕状态）Group
         Group portraitGroup = new Group();
+        {
+            // -—— 常量：背景框和头像的尺寸 ——-
+            final float FRAME_SIZE     = 245f;// 头像框整体 245×245
+            final float IMAGE_SIZE     = 224f;// 头像 224×224
+            final float OFFSET_X       = 20f; // 头像框相对于 Group 左侧的偏移
+            final float INNER_OFFSET   = (FRAME_SIZE - IMAGE_SIZE) / 2f;
 
-        // 头像
-        Image portraitImg = new Image(portraitTexture);
-        Image portraitBgImg = new Image(portraitFrame);
+            Image portraitBgImg = new Image(portraitFrame);
+            portraitBgImg.setSize(FRAME_SIZE, FRAME_SIZE);
+            portraitBgImg.setPosition(OFFSET_X, 0);
 
-        // 偏移计算 头像略小于背景框 推到相对中心位置
-        float offsetX =20;
-        float centering = (245 - 224) / 2f;
-        portraitBgImg.setSize(245, 245);
-        portraitBgImg.setPosition(offsetX, 0);
-        portraitImg.setSize(224, 224);
-        portraitImg.setPosition(offsetX + centering, centering);
+            Image portraitImg = new Image(portraitTexture);
+            portraitImg.setSize(IMAGE_SIZE, IMAGE_SIZE);
+            portraitImg.setPosition(OFFSET_X + INNER_OFFSET, INNER_OFFSET);
 
-        portraitGroup.addActor(portraitBgImg);
-        portraitGroup.addActor(portraitImg);
+
+            // 把头像背景框和头像都加入 portraitGroup
+            portraitGroup.addActor(portraitBgImg);
+            portraitGroup.addActor(portraitImg);
+        }
 
         // 性别圆框
         Image genderIcon = new Image(genderMaleTexture);
-        genderIcon.setSize(50, 55);
-        // “挂”在头像左上角外面一点，x = -iconW/2, y = portraitH - iconH/2
-        genderIcon.setPosition(-50, 180 - 50);
-        portraitGroup.addActor(genderIcon);
 
-        // 自由布局组放回布局表格
-        leftColumn.add(portraitGroup)
-            .size(245, 245)
-            .center()
-            .padBottom(15)
-            .row();
-
-        //出仕竖条：放在左侧中部
+        // 出仕竖条
         Label.LabelStyle greenBarStyle = new Label.LabelStyle(font, Color.GREEN);
-        greenBarStyle.background = new NinePatchDrawable(new NinePatch(
-            new NinePatch(greenVerticalTexture, 4, 4, 4, 4)));
+        greenBarStyle.background = new NinePatchDrawable(
+            new NinePatch(greenVerticalTexture, 4, 4, 4, 4)
+        );
         skin.add("greenBar", greenBarStyle);
         Label statusBar = new Label("出仕", skin, "greenBar");
         Container<Label> statusC = new Container<>(statusBar);
-        statusC.left().padLeft(-65).padTop(-110);
-        portraitGroup.addActor(statusC);
 
+        // 不需要对statusC单独pad，由表格自己定位
+        // 如果需要微调可在下面的表格cel里加 padLeft/padTop
+        // infoTable是两列布局，左列内两个子行，右列是portraitGroup
+        Table infoTable = new Table(skin);
+        //infoTable.defaults().fillX(); // 可选：两列都填满横向，可视情况加
+
+        Table leftSideTable = new Table(skin);
+        leftSideTable.defaults().uniformX().pad(5);
+
+        // 第一行 性别圆框，水平居中
+        leftSideTable.add(genderIcon)
+            .width(68).height(76)
+            .center()
+            .row();
+
+        // 第二行 出仕竖条，同样居中
+        leftSideTable.add(statusC)
+            .center()
+            .row();
+
+        // 把左侧 子Table放进infoTable的左列
+        infoTable.add(leftSideTable)
+            // 给左列指定一个固定宽度或最小宽度，使其与右侧头像区域比例合适
+            .width(78)    // 大于genderIcon的68px，且留一点边距
+            .padRight(10) // 左右列间隔 10px
+            .fillY();     // 在父Table可用高度里填满纵向
+
+        // 右侧放 portraitGroup
+        infoTable.add(portraitGroup)
+            .width(245).height(245)
+            .center()
+            .fillY();// 垂直方向上尽量填满同infoTable高度
+
+        // .row()结束这一行
+        infoTable.row();
+
+        // 把构造好的infoTable放入leftColumn
+        leftColumn.add(infoTable)
+            .fillX()
+            .padBottom(15)
+            .row();
 
         // ----- 武将姓名及官位（后加）---------------
         leftColumn.row();
