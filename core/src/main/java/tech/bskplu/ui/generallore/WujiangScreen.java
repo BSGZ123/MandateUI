@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class WujiangScreen extends ApplicationAdapter {
@@ -42,6 +43,7 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture titleBgTexture;// 称号背景框 (如 "超级")
     private Texture separatorTexture;// 大分割栏
     private Texture textBoxBackgroundTexture;//势力、城市等内容的背景框
+    private Texture twoDashesTexture;// 二分栏
     private Texture weaponSlotBgTexture, armorSlotBgTexture, mountSlotBgTexture, bookSlotBgTexture;// 装备槽背景
     private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
     private Texture careerBoxBgTexture;// 战绩格子背景
@@ -63,8 +65,9 @@ public class WujiangScreen extends ApplicationAdapter {
     private Label troopTypeLabel, specialtyLabel, troopCountLabel, mobilityLabel;
 
     // 定义最小/目标世界尺寸，ExtendViewport将基于此进行扩展
-    private static final float WORLD_WIDTH = 1880;
-    private static final float WORLD_HEIGHT = 900;
+    private static final float WORLD_WIDTH = 2400;
+    private static final float WORLD_HEIGHT = 1080;
+
 
     public WujiangScreen() {
         // 构造函数中可以初始化一些东西，但主要加载和UI构建在 show() 中
@@ -76,8 +79,9 @@ public class WujiangScreen extends ApplicationAdapter {
         // ExtendViewport 会保持世界宽高比，并在需要时扩展世界区域以填充屏幕，而不是留黑边。
         // 它使用最小世界宽度和高度。如果屏幕更大，世界也会在那个维度上更大。
         viewport = new ExtendViewport(WORLD_WIDTH, WORLD_HEIGHT, new OrthographicCamera());
-        stage = new Stage(viewport);
+        stage    = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
+
 
         // 1. 加载资源
         loadAssets(); // 加载纹理等
@@ -93,7 +97,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // 4. 创建根 Table
         Table rootTable = new Table();
         rootTable.setFillParent(true);// 根Table也将填充整个舞台
-        // rootTable.setDebug(true);// 开启调试线，完成后关闭
+        //rootTable.setDebug(true);// 开启调试线，完成后关闭
         stage.addActor(rootTable);
 
         // 5. 创建三列
@@ -101,9 +105,9 @@ public class WujiangScreen extends ApplicationAdapter {
         Table middleColumn = new Table(skin);
         Table rightColumn = new Table(skin);
 
-        // leftColumn.setDebug(true);
-        // middleColumn.setDebug(true);
-        // rightColumn.setDebug(true);
+         leftColumn.setDebug(true);
+         //middleColumn.setDebug(true);
+         //rightColumn.setDebug(true);
 
         // 6. 填充每一列
         populateLeftColumn(leftColumn);
@@ -113,8 +117,8 @@ public class WujiangScreen extends ApplicationAdapter {
         // 7. 将列添加到根 Table
         // 使用百分比宽度，这对于ExtendViewport是合适的，列会根据根Table的实际宽度（可能已扩展）分配空间
         rootTable.add(leftColumn).prefWidth(Value.percentWidth(0.20f, rootTable)).expandY().fillY().padLeft(20).padTop(20).padBottom(20);
-        rootTable.add(middleColumn).prefWidth(Value.percentWidth(0.52f, rootTable)).expandY().fillY().padTop(20).padBottom(20).padLeft(10).padRight(10);
-        rootTable.add(rightColumn).prefWidth(Value.percentWidth(0.28f, rootTable)).expandY().fillY().padRight(20).padTop(20).padBottom(20);
+        rootTable.add(middleColumn).prefWidth(Value.percentWidth(0.48f, rootTable)).expandY().fillY().padTop(20).padBottom(20).padLeft(10).padRight(10);
+        rootTable.add(rightColumn).prefWidth(Value.percentWidth(0.32f, rootTable)).expandY().fillY().padRight(20).padTop(20).padBottom(20);
     }
 
     private void loadAssets() {
@@ -125,6 +129,7 @@ public class WujiangScreen extends ApplicationAdapter {
             portraitTexture = new Texture(Gdx.files.internal("portrait.png"));
             genderMaleTexture = new Texture(Gdx.files.internal("icon_male.png"));
             separatorTexture = new Texture(Gdx.files.internal("divider_h.png"));
+            twoDashesTexture = new Texture(Gdx.files.internal("two_dashes.png"));
 
             greenBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
             titleBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
@@ -156,7 +161,7 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
 
 
@@ -195,6 +200,12 @@ public class WujiangScreen extends ApplicationAdapter {
         contentBoxStyle.background = textBoxDrawable;
         skin.add("contentBoxStyle", contentBoxStyle);
 
+        // 武将当前身份 素材（妃子？）
+        NinePatchDrawable identityBgDrawable = new NinePatchDrawable(new NinePatch(twoDashesTexture, 8, 8, 8, 8));
+        Label.LabelStyle identityStyle = new Label.LabelStyle(font, Color.WHITE);
+        identityStyle.background = identityBgDrawable;
+        skin.add("identityStyle", identityStyle);
+
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = font;
         textButtonStyle.fontColor = Color.WHITE;
@@ -210,42 +221,57 @@ public class WujiangScreen extends ApplicationAdapter {
     private void populateLeftColumn(Table leftColumn) {
         leftColumn.top().pad(10);
 
+        // 创建 子Table
+        Table headerRow = new Table(skin);
+        headerRow.defaults().row();
+
         // 顶部一级标题“武将资料”
-        // 跨列的大号红底白字
         Label.LabelStyle titleStyle = new Label.LabelStyle(font, Color.WHITE);
         // 添加了名为 "GeneralFrame" 的背景素材(测试，后续统一管理)
         titleStyle.background = new NinePatchDrawable(new NinePatch(generalFrameTexture, 8, 8, 8, 8));
         skin.add("headerTitle", titleStyle);
         Label pageTitle = new Label("武将资料", skin, "headerTitle");
-        pageTitle.setFontScale(1.1f);// 稍微放大
-        leftColumn.add(pageTitle)
-            .colspan(1)// 整列仅此一个
-            .center()
-            .padBottom(20)
+        pageTitle.setFontScale(1.5f);// 稍微放大
+
+        Label identityLabel = new Label("妃子", skin, "identityStyle");
+        identityLabel.setFontScale(1.0f);
+
+        headerRow.add(pageTitle).left().pad(5,0,10,10).height(65).width(205);
+        headerRow.add(identityLabel).right().pad(5,10,10,0);
+
+        leftColumn.add(headerRow)
+            .expandX()
+            .fillX()
             .row();
 
         // 人物基本资料（头像性别出仕状态）Group
         Group portraitGroup = new Group();
+
         // 头像
         Image portraitImg = new Image(portraitTexture);
         Image portraitBgImg = new Image(portraitFrame);
-        portraitBgImg.setSize(185, 185);
-        portraitBgImg.setPosition(0, 0);
-        portraitImg.setSize(180, 180);
-        portraitImg.setPosition(0, 0);
+
+        // 偏移计算 头像略小于背景框 推到相对中心位置
+        float offsetX =20;
+        float centering = (245 - 224) / 2f;
+        portraitBgImg.setSize(245, 245);
+        portraitBgImg.setPosition(offsetX, 0);
+        portraitImg.setSize(224, 224);
+        portraitImg.setPosition(offsetX + centering, centering);
+
         portraitGroup.addActor(portraitBgImg);
         portraitGroup.addActor(portraitImg);
 
         // 性别圆框
         Image genderIcon = new Image(genderMaleTexture);
-        genderIcon.setSize(40, 40);
+        genderIcon.setSize(50, 55);
         // “挂”在头像左上角外面一点，x = -iconW/2, y = portraitH - iconH/2
         genderIcon.setPosition(-50, 180 - 50);
         portraitGroup.addActor(genderIcon);
 
         // 自由布局组放回布局表格
         leftColumn.add(portraitGroup)
-            .size(185, 185)
+            .size(245, 245)
             .center()
             .padBottom(15)
             .row();
@@ -655,6 +681,8 @@ public class WujiangScreen extends ApplicationAdapter {
         // viewport.apply(); // 通常在 resize 中调用 update，然后 stage.draw 会用 viewport 的相机
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
+//System.out.println("Viewport worldWidth="+viewport.getWorldWidth()
+//    +", worldHeight="+viewport.getWorldHeight());
     }
 
     @Override
