@@ -44,6 +44,8 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture separatorTexture;// 大分割栏
     private Texture textBoxBackgroundTexture;//势力、城市等内容的背景框
     private Texture twoDashesTexture;// 二分栏
+    private Texture smallGreenFrameTexture;
+    private Texture specialBlueGreenFrameTexture;
     private Texture weaponSlotBgTexture, armorSlotBgTexture, mountSlotBgTexture, bookSlotBgTexture;// 装备槽背景
     private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
     private Texture careerBoxBgTexture;// 战绩格子背景
@@ -134,6 +136,8 @@ public class WujiangScreen extends ApplicationAdapter {
             greenBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
             titleBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
             textBoxBackgroundTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
+            smallGreenFrameTexture = new Texture(Gdx.files.internal("small_green_frame.png"));
+            specialBlueGreenFrameTexture = new Texture(Gdx.files.internal("special_bluegreen_frame.png"));
 
             weaponSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
             armorSlotBgTexture = new Texture(Gdx.files.internal("armor_slot.png"));
@@ -161,7 +165,7 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
 
 
@@ -199,6 +203,16 @@ public class WujiangScreen extends ApplicationAdapter {
         Label.LabelStyle contentBoxStyle = new Label.LabelStyle(font, Color.WHITE);
         contentBoxStyle.background = textBoxDrawable;
         skin.add("contentBoxStyle", contentBoxStyle);
+
+        NinePatchDrawable smallGreenBg = new NinePatchDrawable(new NinePatch(smallGreenFrameTexture, 4, 4, 4, 4));
+        Label.LabelStyle superStyle = new Label.LabelStyle(font, Color.WHITE);
+        superStyle.background = smallGreenBg;
+        skin.add("superStyle", superStyle);
+
+        NinePatchDrawable blueGreenBg = new NinePatchDrawable(new NinePatch(specialBlueGreenFrameTexture, 4, 4, 4, 4));
+        Label.LabelStyle lvlTitleStyle = new Label.LabelStyle(font, Color.WHITE);
+        lvlTitleStyle.background = blueGreenBg;
+        skin.add("lvlTitleStyle", lvlTitleStyle);
 
         // 武将当前身份 素材（妃子？）
         NinePatchDrawable identityBgDrawable = new NinePatchDrawable(new NinePatch(twoDashesTexture, 8, 8, 8, 8));
@@ -353,33 +367,70 @@ public class WujiangScreen extends ApplicationAdapter {
             .padBottom(20)
             .row();
 
+        // 等级经验及称号？
         Table levelExpTable = new Table(skin);
-        levelExpTable.add(new Label("等级", skin)).left().padRight(10);
-        levelLabel = new Label("8", skin);
-        levelExpTable.add(levelLabel).left().row();
+        levelExpTable.defaults().pad(5).expandX().fillX();
 
-        ProgressBar.ProgressBarStyle progressBarStyle = new ProgressBar.ProgressBarStyle();
-        Pixmap greenPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        greenPixmap.setColor(Color.GREEN);
-        greenPixmap.fill();
-        progressBarStyle.knobBefore = new TextureRegionDrawable(new TextureRegion(new Texture(greenPixmap)));
-        greenPixmap.dispose();
+        // 超级
+        Label superLabel1 = new Label("超级", skin, "superStyle");
+        superLabel1.setFontScale(1.5f);
+        superLabel1.setAlignment(Align.center);
+        levelExpTable.add(superLabel1)
+            .minWidth(88).minHeight(59)
+            .left();
 
-        Pixmap grayPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        grayPixmap.setColor(Color.DARK_GRAY);
-        grayPixmap.fill();
-        progressBarStyle.background = new TextureRegionDrawable(new TextureRegion(new Texture(grayPixmap)));
-        grayPixmap.dispose();
+        // 空白占位
+        levelExpTable.add()
+            .width(80);
 
-        ProgressBar expBar = new ProgressBar(0, 500, 1, false, progressBarStyle);
-        expBar.setValue(500);
-        // 让经验条可以横向填充可用空间，但给一个最小和首选宽度
-        levelExpTable.add(expBar).colspan(2).minWidth(150).prefWidth(180).expandX().fillX().height(20).padTop(5).row();
+        // 等级
+        Label lvlTitleLabel = new Label("等级", skin, "lvlTitleStyle");
+        lvlTitleLabel.setFontScale(1.5f);
+        lvlTitleLabel.setAlignment(Align.center);
+        levelExpTable.add(lvlTitleLabel)
+            .minWidth(85).minHeight(50)
+            .center();
 
-        expLabel = new Label("500", skin);
-        levelExpTable.add(expLabel).colspan(2).center().padTop(5);
+        // 等级数值
+        Label lvlValueLabel = new Label("16", new Label.LabelStyle(font, Color.WHITE));
+        lvlValueLabel.setFontScale(1.4f);
+        levelExpTable.add(lvlValueLabel)
+            .minWidth(60).minHeight(40)
+            .center()
+            .row();
 
-        leftColumn.add(levelExpTable).padBottom(30).row();
+        // 人将
+        Label superLabel2 = new Label("人将", skin, "superStyle");
+        superLabel2.setFontScale(1.5f);
+        superLabel2.setAlignment(Align.center);
+        levelExpTable.add(superLabel2)
+            .minWidth(88).minHeight(59)
+            .left();
+
+        // 空白占位
+        levelExpTable.add()
+            .width(80);
+
+        // 经验
+        Label expTitleLabel = new Label("经验", skin, "lvlTitleStyle");
+        expTitleLabel.setFontScale(1.5f);
+        expTitleLabel.setAlignment(Align.center);
+        levelExpTable.add(expTitleLabel)
+            .minWidth(85).minHeight(50)
+            .center();
+
+        // 经验数值
+        Label expValueLabel = new Label("5000", new Label.LabelStyle(font, Color.WHITE));
+        expValueLabel.setFontScale(1.4f);
+        levelExpTable.add(expValueLabel)
+            .minWidth(60).minHeight(40)
+            .center()
+            .row();
+
+        leftColumn.add(levelExpTable)
+            .padBottom(20)
+            .fillX()
+            .row();
 
         Table titlesTable = new Table(skin);
         titlesTable.add(new Label("称号:", skin)).left().padRight(10);
