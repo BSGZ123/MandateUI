@@ -161,7 +161,7 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
 
 
@@ -231,10 +231,12 @@ public class WujiangScreen extends ApplicationAdapter {
         titleStyle.background = new NinePatchDrawable(new NinePatch(generalFrameTexture, 8, 8, 8, 8));
         skin.add("headerTitle", titleStyle);
         Label pageTitle = new Label("武将资料", skin, "headerTitle");
-        pageTitle.setFontScale(1.5f);// 稍微放大
+        pageTitle.setFontScale(2.3f);
+        pageTitle.setAlignment(Align.center);
 
         Label identityLabel = new Label("妃子", skin, "identityStyle");
         identityLabel.setFontScale(1.0f);
+        identityLabel.setAlignment(Align.center);
 
         headerRow.add(pageTitle).left().pad(5,0,10,10).height(65).width(205);
         headerRow.add(identityLabel).right().pad(5,10,10,0);
@@ -320,13 +322,36 @@ public class WujiangScreen extends ApplicationAdapter {
             .padBottom(15)
             .row();
 
-        // ----- 武将姓名及官位（后加）---------------
-        leftColumn.row();
-        leftColumn.add(new Label("九爷", skin, "titleBoxStyle")).padTop(5).row();
-        leftColumn.add(new Label("无官职", skin, "contentBoxStyle")).padTop(5).row();
+        // ----- 武将姓名及官位（已优化）---------------
+        // 武将姓名 直接用白色大字号Label，无背景
+        Label.LabelStyle nameStyle = new Label.LabelStyle(font, Color.WHITE);
+        Label nameLabel = new Label("柳岩", nameStyle);
+        nameLabel.setFontScale(2.2f);
+        leftColumn.add(nameLabel)
+            .expandX()// 水平占满，方便居中
+            .center()
+            .padTop(5)
+            .row();
 
+        // 官位
+        Label rankLabel = new Label("无官职", skin, "headerTitle");
+        rankLabel.setFontScale(1.8f);
+        rankLabel.setAlignment(Align.center);
+        leftColumn.add(rankLabel)
+            .width(200)
+            .height(55)
+            .padTop(5)
+            .row();
+
+        // 能力雷达图（五维）
+        // 原来固定宽高 改为扩展填充+相对高度
         radarChart = new RadarChartActor(currentStats);
-        leftColumn.add(radarChart).width(200).height(180).padBottom(20).row();
+        leftColumn.add(radarChart)
+            .expandX()
+            .fillX()
+            .height(Value.percentHeight(0.28f, leftColumn))// 垂直占左列25%高度
+            .padBottom(20)
+            .row();
 
         Table levelExpTable = new Table(skin);
         levelExpTable.add(new Label("等级", skin)).left().padRight(10);
