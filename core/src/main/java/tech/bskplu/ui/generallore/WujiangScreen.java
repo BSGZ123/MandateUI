@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -23,8 +22,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class WujiangScreen extends ApplicationAdapter {
 
@@ -66,6 +67,9 @@ public class WujiangScreen extends ApplicationAdapter {
     private Label bodyLabel, martialLabel, intellectLabel, virtueLabel, leadershipLabel, politicsLabel, loyaltyLabel, affinityLabel;
     private Label troopTypeLabel, specialtyLabel, troopCountLabel, mobilityLabel;
 
+    // 武将技能组
+    List<String> skills;
+
     // 定义最小/目标世界尺寸，ExtendViewport将基于此进行扩展
     private static final float WORLD_WIDTH = 2400;
     private static final float WORLD_HEIGHT = 1080;
@@ -73,6 +77,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
     public WujiangScreen() {
         // 构造函数中可以初始化一些东西，但主要加载和UI构建在 show() 中
+        skills = Arrays.asList("后勤", "无双", "内连", "反击", "奇谋", "铁壁", "迅捷", "固守");
     }
 
     @Override
@@ -165,7 +170,7 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
 
 
@@ -336,7 +341,7 @@ public class WujiangScreen extends ApplicationAdapter {
             .padBottom(15)
             .row();
 
-        // ----- 武将姓名及官位（已优化）---------------
+        // ----- 武将姓名及官位（已优化）----
         // 武将姓名 直接用白色大字号Label，无背景
         Label.LabelStyle nameStyle = new Label.LabelStyle(font, Color.WHITE);
         Label nameLabel = new Label("柳岩", nameStyle);
@@ -345,6 +350,7 @@ public class WujiangScreen extends ApplicationAdapter {
             .expandX()// 水平占满，方便居中
             .center()
             .padTop(5)
+            .padBottom(5)
             .row();
 
         // 官位
@@ -355,6 +361,7 @@ public class WujiangScreen extends ApplicationAdapter {
             .width(200)
             .height(55)
             .padTop(5)
+            .padBottom(20)
             .row();
 
         // 能力雷达图（五维）
@@ -432,23 +439,38 @@ public class WujiangScreen extends ApplicationAdapter {
             .fillX()
             .row();
 
-        Table titlesTable = new Table(skin);
-        titlesTable.add(new Label("称号:", skin)).left().padRight(10);
-        titlesTable.add(new Label("超级", skin, "titleBoxStyle")).pad(3);
-        titlesTable.add(new Label("人将", skin, "titleBoxStyle")).pad(3);
-        titlesTable.add(new Label("五行", skin, "titleBoxStyle")).pad(3);
-        // fillX让称号行能利用横向空间
-        leftColumn.add(titlesTable).fillX().padBottom(10).row();
-
+        // 武将技能组
         Table skillsTable = new Table(skin);
-        skillsTable.add(new Label("技能:", skin)).left().padRight(10).top();
+        skillsTable.defaults()
+            .pad(5)
+            .expandX()
+            .fillX();
 
-        Table skillItemsTable = new Table();
-        skillItemsTable.add(new Label("铁壁", skin, "skillStyle")).pad(3);
-        skillItemsTable.add(new Label("无双", skin, "skillStyle")).pad(3);
-        skillsTable.add(skillItemsTable).left();
-        // fillX 和 expandY().top() 帮助技能部分在垂直方向上良好定位并利用横向空间
-        leftColumn.add(skillsTable).fillX().expandY().top();
+        int colsPerRow = 4;
+        for (int i = 0; i < skills.size(); i++) {
+            String skillName = skills.get(i);
+            Label skillLabel = new Label(skillName, skin, "superStyle");
+            skillLabel.setFontScale(1.4f);
+            skillLabel.setAlignment(Align.center);
+
+            skillsTable.add(skillLabel)
+                .minWidth(80).minHeight(50)
+                .center();
+
+            if ((i + 1) % colsPerRow == 0) {
+                skillsTable.row();
+            }
+        }
+
+        if (skills.size() % colsPerRow != 0) {
+            skillsTable.row();
+        }
+
+        leftColumn.add(skillsTable)
+            .fillX()
+            .padBottom(10)
+            .row();
+
     }
 
     private void populateMiddleColumn(Table middleColumn) {
