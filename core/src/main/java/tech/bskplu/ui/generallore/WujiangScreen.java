@@ -648,6 +648,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // 大分割栏
         middleColumn.add(new Image(separatorTexture))
             .fillX()
+            .padTop(10)
             .padBottom(10)
             .row();
 
@@ -701,6 +702,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // 大分割栏
         middleColumn.add(new Image(separatorTexture))
             .fillX()
+            .padTop(10)
             .padBottom(10)
             .row();
 
