@@ -54,6 +54,7 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture generalFrameTexture;// “武将资料” 头框
     private Texture greenVerticalTexture;// 绿色竖条
     private Texture biographyBgTexture;// 列传背景
+    private Texture tabInfoTexture;// 属性导航框
 
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
@@ -82,7 +83,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
     @Override
     public void create() {
-        // 修改 Viewport 类型为 ExtendViewport
+        // 修改Viewport 类型为 ExtendViewport
         // ExtendViewport 会保持世界宽高比，并在需要时扩展世界区域以填充屏幕，而不是留黑边。
         // 它使用最小世界宽度和高度。如果屏幕更大，世界也会在那个维度上更大。
         viewport = new ExtendViewport(WORLD_WIDTH, WORLD_HEIGHT, new OrthographicCamera());
@@ -104,7 +105,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // 4. 创建根 Table
         Table rootTable = new Table();
         rootTable.setFillParent(true);// 根Table也将填充整个舞台
-        //rootTable.setDebug(true);// 开启调试线，完成后关闭
+        rootTable.setDebug(true);// 开启调试线，完成后关闭
         stage.addActor(rootTable);
 
         // 5. 创建三列
@@ -113,7 +114,7 @@ public class WujiangScreen extends ApplicationAdapter {
         Table rightColumn = new Table(skin);
 
          leftColumn.setDebug(true);
-         //middleColumn.setDebug(true);
+         middleColumn.setDebug(true);
          //rightColumn.setDebug(true);
 
         // 6. 填充每一列
@@ -158,6 +159,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
             buttonUpTexture = new Texture(Gdx.files.internal("button_down.png"));
             buttonDownTexture = new Texture(Gdx.files.internal("button_up.png"));
+            tabInfoTexture = new Texture(Gdx.files.internal("tab_information.png"));
 
             generalFrameTexture = new Texture(Gdx.files.internal("GeneralFrame.png"));
             greenVerticalTexture= new Texture(Gdx.files.internal("green_vertical.png"));
@@ -170,10 +172,8 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
-
-
 
             // 字体初始化，默认Libgdx默认字体，不支持中文
             font = generator.generateFont(param);
@@ -224,6 +224,12 @@ public class WujiangScreen extends ApplicationAdapter {
         Label.LabelStyle identityStyle = new Label.LabelStyle(font, Color.WHITE);
         identityStyle.background = identityBgDrawable;
         skin.add("identityStyle", identityStyle);
+
+        // tab信息行(个人、能力、部队、装备、生涯的背景)
+        NinePatchDrawable tabInfoBg = new NinePatchDrawable(new NinePatch(tabInfoTexture, 8, 8, 8, 8));
+        Label.LabelStyle tabInfoStyle = new Label.LabelStyle(font, Color.WHITE);
+        tabInfoStyle.background = tabInfoBg;
+        skin.add("tabInfoStyle", tabInfoStyle);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = font;
@@ -476,108 +482,165 @@ public class WujiangScreen extends ApplicationAdapter {
     private void populateMiddleColumn(Table middleColumn) {
         middleColumn.top().pad(10);
 
-        // ----- 1. 标题 & 选项卡 -----
-        Table header = new Table(skin);
-        // — 主标题 “主公”(老Demo上有)
-        Label titleLabel = new Label("主公", skin, "titleBoxStyle");
-        header.add(titleLabel)
-            .colspan(2)
-            .center()
-            .padBottom(10)
+        // ===== 最外层infoContainer 两列布局 =====
+        // 左侧放 leftNestedTable（包含三行：个人 / 能力 / 部队）
+        // 右侧放 loreStack（人物列传标题）
+        Table infoContainer = new Table(skin);
+        infoContainer.defaults().align(Align.center);
+
+        // 创建左侧的leftNestedTable
+        Table leftNestedTable = new Table(skin);
+        leftNestedTable.defaults().pad(5).align(Align.center);
+
+        // ——— 个人行 ———
+        Table personalRow = new Table(skin);
+        personalRow.defaults().pad(3).align(Align.center);
+        //personalRow.setDebug(true);
+
+        // （a）第一列：个人带背景框
+        Label personalLabel = new Label("个人", skin, "tabInfoStyle");
+        personalLabel.setFontScale(1.2f);
+        personalLabel.setAlignment(Align.center);
+        personalRow.add(personalLabel).minWidth(120).minHeight(50).padRight(10);
+
+        // （b）势力+九爷
+        personalRow.add(new Label("势力", skin, "golden")).padRight(3);
+        Label lordValue = new Label("九爷", skin, "identityStyle");
+        lordValue.setAlignment(Align.center);
+        personalRow.add(lordValue).minWidth(80).minHeight(40).padRight(15);
+
+        // （c）城市+洛阳
+        personalRow.add(new Label("城市", skin, "golden")).padRight(3);
+        Label cityValue = new Label("洛阳", skin, "identityStyle");
+        cityValue.setAlignment(Align.center);
+        personalRow.add(cityValue).minWidth(80).minHeight(40).padRight(15);
+
+        // （d）俸禄+30/月
+        personalRow.add(new Label("俸禄", skin, "golden")).padRight(3);
+        Label salaryValue = new Label("30/月", skin, "identityStyle");
+        salaryValue.setAlignment(Align.center);
+        personalRow.add(salaryValue).minWidth(80).minHeight(40);
+
+        // 将这行加入leftNestedTable
+        leftNestedTable.add(personalRow).left().row();
+
+        // ——— 能力行 ———
+        Table abilityRow = new Table(skin);
+        abilityRow.defaults().pad(3).align(Align.center);
+
+        // （a）第一列 能力
+        Label abilityLabel = new Label("能力", skin, "tabInfoStyle");
+        abilityLabel.setFontScale(1.2f);
+        abilityLabel.setAlignment(Align.center);
+        abilityRow.add(abilityLabel).minWidth(120).minHeight(50).padRight(10);
+
+        // （b）体 99
+        abilityRow.add(new Label("体", skin, "golden")).padRight(3);
+        Label valBody = new Label("99", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valBody).minWidth(50).minHeight(40).padRight(15);
+
+        // （c）武 99
+        abilityRow.add(new Label("武", skin, "golden")).padRight(3);
+        Label valMartial = new Label("99", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valMartial).minWidth(50).minHeight(40).padRight(15);
+
+        // （d）知 99
+        abilityRow.add(new Label("知", skin, "golden")).padRight(3);
+        Label valIntellect = new Label("99", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valIntellect).minWidth(50).minHeight(40).padRight(15);
+
+        // （e）德 99
+        abilityRow.add(new Label("德", skin, "golden")).padRight(3);
+        Label valVirtue = new Label("99", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valVirtue).minWidth(50).minHeight(40).padRight(15);
+
+        // （f）统 99
+        abilityRow.add(new Label("统", skin, "golden")).padRight(3);
+        Label valLeadership = new Label("99", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valLeadership).minWidth(50).minHeight(40).padRight(15);
+
+        // （g）政 99
+        abilityRow.add(new Label("政", skin, "golden")).padRight(3);
+        Label valPolitics = new Label("99", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valPolitics).minWidth(50).minHeight(40).padRight(15);
+
+        // （h）忠 90
+        abilityRow.add(new Label("忠", skin, "golden")).padRight(3);
+        Label valLoyalty = new Label("90", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valLoyalty).minWidth(50).minHeight(40).padRight(15);
+
+        // （i）相性 100
+        abilityRow.add(new Label("相性", skin, "golden")).padRight(3);
+        Label valAffinity = new Label("100", new Label.LabelStyle(font, Color.WHITE));
+        abilityRow.add(valAffinity).minWidth(50).minHeight(40);
+
+        // 将能力行加入leftNestedTable
+        leftNestedTable.add(abilityRow).left().row();
+
+        // ——— 部队行 ———
+        Table troopsRow = new Table(skin);
+        troopsRow.defaults().pad(3).align(Align.center);
+
+        // （a）第一列 部队
+        Label troopsLabel = new Label("部队", skin, "tabInfoStyle");
+        troopsLabel.setFontScale(1.2f);
+        troopsLabel.setAlignment(Align.center);
+        troopsRow.add(troopsLabel).minWidth(120).minHeight(50).padRight(10);
+
+        // （b）兵种 山军
+        troopsRow.add(new Label("兵种", skin, "golden")).padRight(3);
+        Label troopTypeValue = new Label("山军", new Label.LabelStyle(font, Color.WHITE));
+        troopTypeValue.setAlignment(Align.center);
+        troopsRow.add(troopTypeValue).minWidth(80).minHeight(40).padRight(15);
+
+        // （c）专精 剑
+        troopsRow.add(new Label("专精", skin, "golden")).padRight(3);
+        Label specialtyValue = new Label("剑", new Label.LabelStyle(font, Color.WHITE));
+        specialtyValue.setAlignment(Align.center);
+        troopsRow.add(specialtyValue).minWidth(80).minHeight(40).padRight(15);
+
+        // （d）兵力 3000
+        troopsRow.add(new Label("兵力", skin, "golden")).padRight(3);
+        Label troopCountValue = new Label("3000", new Label.LabelStyle(font, Color.WHITE));
+        troopCountValue.setAlignment(Align.center);
+        troopsRow.add(troopCountValue).minWidth(80).minHeight(40).padRight(15);
+
+        // （e）机动 20
+        troopsRow.add(new Label("机动", skin, "golden")).padRight(3);
+        Label mobilityValue = new Label("20", new Label.LabelStyle(font, Color.WHITE));
+        mobilityValue.setAlignment(Align.center);
+        troopsRow.add(mobilityValue).minWidth(80).minHeight(40);
+
+        // 将部队行加入leftNestedTable
+        leftNestedTable.add(troopsRow).left().row();
+
+        // ===== 右侧的人物列传标题栏，只放一个 Label，下面留空 =====
+        Table rightTitleTable = new Table(skin);
+        rightTitleTable.top().padTop(3);// 标题靠上
+
+        // 人物列传 Label
+        Label loreTitle = new Label("人物列传", skin, "superStyle");
+        loreTitle.setFontScale(1.1f);
+        loreTitle.setAlignment(Align.center);
+        rightTitleTable.add(loreTitle).minWidth(140).minHeight(50).row();
+
+        // 再加一个空行，占据剩余高度
+        rightTitleTable.add().expand().fill().row();
+
+        // ----- 把左右两部分加入infoContainer -----
+        // 左侧leftNestedTable占70% 宽度，撑满垂直方向
+        infoContainer.add(leftNestedTable)
+            .expandY().fillY()
+            .padRight(10);
+
+        // 右侧rightTitleTable占30%宽度，也撑满垂直方向
+        infoContainer.add(rightTitleTable)
+            .expandY().fillY();
+
+        // ----- 将infoContainer放到middleColumn中 -----
+        middleColumn.add(infoContainer)
+            .expandX().fillX()
             .row();
-
-        // — 选项卡按钮- 个人/能力
-        TextButton personalTab = new TextButton("个人", skin, "default");
-        TextButton abilityTab = new TextButton("能力", skin, "default");
-        header.add(personalTab).padRight(5);
-        header.add(abilityTab);
-        middleColumn.add(header).fillX().row();
-
-        // ----- 2. 个人信息 -----
-        Table personalInfo = new Table(skin);
-        // 势力
-        personalInfo.add(new Label("势力", skin, "golden")).padRight(5);
-        forceValueLabel = new Label("九爷", skin, "contentBoxStyle");
-        personalInfo.add(forceValueLabel).padRight(20);
-        // 城市
-        personalInfo.add(new Label("城市", skin, "golden")).padRight(5);
-        cityValueLabel = new Label("洛阳", skin, "contentBoxStyle");
-        personalInfo.add(cityValueLabel).padRight(20);
-        // 俸禄
-        personalInfo.add(new Label("俸禄", skin, "golden")).padRight(5);
-        salaryValueLabel = new Label("30/月", skin);
-        personalInfo.add(salaryValueLabel);
-        middleColumn.add(personalInfo).fillX().padBottom(10).row();
-
-        // ------ 3. 能力数值 ------
-        Table abilities = new Table(skin);
-
-        abilities.add(new Label("体", skin, "golden")).padRight(5);
-        bodyLabel = new Label("99", skin, "golden");
-        abilities.add(bodyLabel).padRight(20);
-
-        abilities.add(new Label("武", skin, "golden")).padRight(5);
-        martialLabel = new Label("99", skin, "golden");
-        abilities.add(martialLabel).padRight(20);
-
-        abilities.add(new Label("知", skin, "golden")).padRight(5);
-        intellectLabel = new Label("99", skin, "golden");
-        abilities.add(intellectLabel).padRight(20);
-
-        abilities.add(new Label("德", skin, "golden")).padRight(5);
-        virtueLabel = new Label("99", skin, "golden");
-        abilities.add(virtueLabel).padRight(20);
-
-        abilities.add(new Label("统", skin, "golden")).padRight(5);
-        leadershipLabel = new Label("99", skin, "golden");
-        abilities.add(leadershipLabel).padRight(20);
-
-        abilities.add(new Label("政", skin, "golden")).padRight(5);
-        politicsLabel = new Label("99", skin, "golden");
-        abilities.add(politicsLabel).padRight(20);
-
-        abilities.add(new Label("忠", skin, "golden")).padRight(5);
-        loyaltyLabel = new Label("99", skin, "golden");
-        abilities.add(loyaltyLabel).padRight(20);
-
-        abilities.add(new Label("相性", skin, "golden")).padRight(5);
-        affinityLabel = new Label("99", skin, "golden");
-        abilities.add(affinityLabel);
-
-
-        middleColumn.add(abilities)
-            .fillX()// 横向填满可用宽度
-            .padBottom(20)// 底部间距
-            .row();
-
-
-        // ----- 4. 部队信息 -----
-        Table troopsSection = new Table(skin);
-        // 板块标题
-        troopsSection.add(new Label("部队", skin, "titleBoxStyle"))
-            .left().padBottom(5).row();
-
-        // 兵种 / 专精 / 兵力 / 机动
-        Table troopsInfo = new Table(skin);
-
-        troopsInfo.add(new Label("兵种", skin)).padRight(5);
-        troopTypeLabel = new Label("山军", skin, "contentBoxStyle");
-        troopsInfo.add(troopTypeLabel).padRight(20);
-
-        troopsInfo.add(new Label("专精", skin)).padRight(5);
-        specialtyLabel = new Label("剑", skin, "contentBoxStyle");
-        troopsInfo.add(specialtyLabel).padRight(20);
-
-        troopsInfo.add(new Label("兵力", skin)).padRight(5);
-        troopCountLabel = new Label("3000", skin, "contentBoxStyle");
-        troopsInfo.add(troopCountLabel).padRight(20);
-
-        troopsInfo.add(new Label("机动", skin)).padRight(5);
-        mobilityLabel = new Label("20", skin, "contentBoxStyle");
-        troopsInfo.add(mobilityLabel);
-        troopsSection.add(troopsInfo).left().padBottom(20).row();
-
-        middleColumn.add(troopsSection).fillX().row();
 
         // 大分割栏
         middleColumn.add(new Image(separatorTexture))
@@ -812,8 +875,6 @@ public class WujiangScreen extends ApplicationAdapter {
         // viewport.apply(); // 通常在 resize 中调用 update，然后 stage.draw 会用 viewport 的相机
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-//System.out.println("Viewport worldWidth="+viewport.getWorldWidth()
-//    +", worldHeight="+viewport.getWorldHeight());
     }
 
     @Override
