@@ -167,7 +167,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            param.size = 16;
+            param.size = 24;
             param.magFilter = Texture.TextureFilter.Linear;
             param.minFilter = Texture.TextureFilter.Linear;
 
@@ -256,11 +256,11 @@ public class WujiangScreen extends ApplicationAdapter {
         titleStyle.background = new NinePatchDrawable(new NinePatch(generalFrameTexture, 8, 8, 8, 8));
         skin.add("headerTitle", titleStyle);
         Label pageTitle = new Label("武将资料", skin, "headerTitle");
-        pageTitle.setFontScale(2.3f);
+        pageTitle.setFontScale(1.8f);
         pageTitle.setAlignment(Align.center);
 
         Label identityLabel = new Label("妃子", skin, "identityStyle");
-        identityLabel.setFontScale(1.0f);
+        identityLabel.setFontScale(1.2f);
         identityLabel.setAlignment(Align.center);
 
         headerRow.add(pageTitle).left().pad(5,0,10,10).height(65).width(205);
@@ -351,7 +351,7 @@ public class WujiangScreen extends ApplicationAdapter {
         // 武将姓名 直接用白色大字号Label，无背景
         Label.LabelStyle nameStyle = new Label.LabelStyle(font, Color.WHITE);
         Label nameLabel = new Label("柳岩", nameStyle);
-        nameLabel.setFontScale(2.2f);
+        nameLabel.setFontScale(1.6f);
         leftColumn.add(nameLabel)
             .expandX()// 水平占满，方便居中
             .center()
@@ -361,7 +361,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
         // 官位
         Label rankLabel = new Label("无官职", skin, "headerTitle");
-        rankLabel.setFontScale(1.8f);
+        rankLabel.setFontScale(1.5f);
         rankLabel.setAlignment(Align.center);
         leftColumn.add(rankLabel)
             .width(200)
@@ -494,29 +494,29 @@ public class WujiangScreen extends ApplicationAdapter {
 
         // ——— 个人行 ———
         Table personalRow = new Table(skin);
-        personalRow.defaults().pad(3).align(Align.center);
+        personalRow.defaults().pad(10).align(Align.center);
         //personalRow.setDebug(true);
 
         // （a）第一列：个人带背景框
         Label personalLabel = new Label("个人", skin, "tabInfoStyle");
-        personalLabel.setFontScale(1.2f);
+        personalLabel.setFontScale(1.5f);
         personalLabel.setAlignment(Align.center);
-        personalRow.add(personalLabel).minWidth(120).minHeight(50).padRight(10);
+        personalRow.add(personalLabel).minWidth(120).minHeight(55).padRight(30);
 
         // （b）势力+九爷
-        personalRow.add(new Label("势力", skin, "golden")).padRight(3);
+        personalRow.add(new Label("势力", skin, "golden")).padRight(15);
         Label lordValue = new Label("九爷", skin, "identityStyle");
         lordValue.setAlignment(Align.center);
         personalRow.add(lordValue).minWidth(80).minHeight(40).padRight(15);
 
         // （c）城市+洛阳
-        personalRow.add(new Label("城市", skin, "golden")).padRight(3);
+        personalRow.add(new Label("城市", skin, "golden")).padRight(15);
         Label cityValue = new Label("洛阳", skin, "identityStyle");
         cityValue.setAlignment(Align.center);
         personalRow.add(cityValue).minWidth(80).minHeight(40).padRight(15);
 
         // （d）俸禄+30/月
-        personalRow.add(new Label("俸禄", skin, "golden")).padRight(3);
+        personalRow.add(new Label("俸禄", skin, "golden")).padRight(15);
         Label salaryValue = new Label("30/月", skin, "identityStyle");
         salaryValue.setAlignment(Align.center);
         personalRow.add(salaryValue).minWidth(80).minHeight(40);
@@ -526,51 +526,51 @@ public class WujiangScreen extends ApplicationAdapter {
 
         // ——— 能力行 ———
         Table abilityRow = new Table(skin);
-        abilityRow.defaults().pad(3).align(Align.center);
+        abilityRow.defaults().pad(10).align(Align.center);
 
         // （a）第一列 能力
         Label abilityLabel = new Label("能力", skin, "tabInfoStyle");
-        abilityLabel.setFontScale(1.2f);
+        abilityLabel.setFontScale(1.5f);
         abilityLabel.setAlignment(Align.center);
-        abilityRow.add(abilityLabel).minWidth(120).minHeight(50).padRight(10);
+        abilityRow.add(abilityLabel).minWidth(120).minHeight(55).padRight(30);
 
         // （b）体 99
-        abilityRow.add(new Label("体", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("体", skin, "golden")).padRight(5);
         Label valBody = new Label("99", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valBody).minWidth(50).minHeight(40).padRight(15);
 
         // （c）武 99
-        abilityRow.add(new Label("武", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("武", skin, "golden")).padRight(5);
         Label valMartial = new Label("99", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valMartial).minWidth(50).minHeight(40).padRight(15);
 
         // （d）知 99
-        abilityRow.add(new Label("知", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("知", skin, "golden")).padRight(5);
         Label valIntellect = new Label("99", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valIntellect).minWidth(50).minHeight(40).padRight(15);
 
         // （e）德 99
-        abilityRow.add(new Label("德", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("德", skin, "golden")).padRight(5);
         Label valVirtue = new Label("99", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valVirtue).minWidth(50).minHeight(40).padRight(15);
 
         // （f）统 99
-        abilityRow.add(new Label("统", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("统", skin, "golden")).padRight(5);
         Label valLeadership = new Label("99", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valLeadership).minWidth(50).minHeight(40).padRight(15);
 
         // （g）政 99
-        abilityRow.add(new Label("政", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("政", skin, "golden")).padRight(5);
         Label valPolitics = new Label("99", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valPolitics).minWidth(50).minHeight(40).padRight(15);
 
         // （h）忠 90
-        abilityRow.add(new Label("忠", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("忠", skin, "golden")).padRight(5);
         Label valLoyalty = new Label("90", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valLoyalty).minWidth(50).minHeight(40).padRight(15);
 
         // （i）相性 100
-        abilityRow.add(new Label("相性", skin, "golden")).padRight(3);
+        abilityRow.add(new Label("相性", skin, "golden")).padRight(5);
         Label valAffinity = new Label("100", new Label.LabelStyle(font, Color.WHITE));
         abilityRow.add(valAffinity).minWidth(50).minHeight(40);
 
@@ -579,13 +579,13 @@ public class WujiangScreen extends ApplicationAdapter {
 
         // ——— 部队行 ———
         Table troopsRow = new Table(skin);
-        troopsRow.defaults().pad(3).align(Align.center);
+        troopsRow.defaults().pad(10).align(Align.center);
 
         // （a）第一列 部队
         Label troopsLabel = new Label("部队", skin, "tabInfoStyle");
-        troopsLabel.setFontScale(1.2f);
+        troopsLabel.setFontScale(1.5f);
         troopsLabel.setAlignment(Align.center);
-        troopsRow.add(troopsLabel).minWidth(120).minHeight(50).padRight(10);
+        troopsRow.add(troopsLabel).minWidth(120).minHeight(55).padRight(30);
 
         // （b）兵种 山军
         troopsRow.add(new Label("兵种", skin, "golden")).padRight(3);
@@ -623,21 +623,24 @@ public class WujiangScreen extends ApplicationAdapter {
         loreTitle.setFontScale(1.1f);
         loreTitle.setAlignment(Align.center);
         rightTitleTable.add(loreTitle).minWidth(140).minHeight(50).row();
+        rightTitleTable.setDebug(true);
 
         // 再加一个空行，占据剩余高度
-        rightTitleTable.add().expand().fill().row();
+        rightTitleTable.add().row();
 
-        // ----- 把左右两部分加入infoContainer -----
-        // 左侧leftNestedTable占70% 宽度，撑满垂直方向
         infoContainer.add(leftNestedTable)
             .expandY().fillY()
             .padRight(10);
 
-        // 右侧rightTitleTable占30%宽度，也撑满垂直方向
         infoContainer.add(rightTitleTable)
-            .expandY().fillY();
+            .expandX()
+            .right()
+            .top()
+            .padRight(5)
+            .row();
+        infoContainer.setDebug(true);
+        leftNestedTable.setDebug(true);
 
-        // ----- 将infoContainer放到middleColumn中 -----
         middleColumn.add(infoContainer)
             .expandX().fillX()
             .row();
@@ -763,13 +766,13 @@ public class WujiangScreen extends ApplicationAdapter {
         rightColumn.top().pad(10);
 
         // ----- 1. 人物关系按钮 -----
-        TextButton relationsButton = new TextButton("人物关系", skin, "default");
-        rightColumn.add(relationsButton)
-            .prefWidth(Value.percentWidth(0.8f, rightColumn))
-            .height(60)
-            .center()
-            .padBottom(20)
-            .row();
+//        TextButton relationsButton = new TextButton("人物关系", skin, "default");
+//        rightColumn.add(relationsButton)
+//            .prefWidth(Value.percentWidth(0.8f, rightColumn))
+//            .height(60)
+//            .center()
+//            .padBottom(20)
+//            .row();
 
         // ----- 2. 列传显示区 -----
         Image bioBgImage = new Image(biographyBgTexture);
