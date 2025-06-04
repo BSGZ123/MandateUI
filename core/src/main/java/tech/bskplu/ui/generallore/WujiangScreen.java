@@ -172,7 +172,7 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/装列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
 
             // 字体初始化，默认Libgdx默认字体，不支持中文
@@ -652,12 +652,22 @@ public class WujiangScreen extends ApplicationAdapter {
             .padBottom(10)
             .row();
 
-        // ----- 5. 装备槽 -----
+        // ----- 装备槽 -----
         Table equipmentSection = new Table(skin);
-        equipmentSection.add(new Label("装备", skin, "titleBoxStyle"))
-            .left().padBottom(5).row();
+
+        Label equipTab = new Label("装备", skin, "tabInfoStyle");
+        equipTab.setFontScale(1.4f);
+        equipTab.setAlignment(Align.center);
+        equipmentSection.add(equipTab)
+            .left()
+            .minWidth(120)
+            .minHeight(55)
+            .pad(15)
+            .expandX()
+            .row();
 
         Table equipGrid = new Table(skin);
+        equipGrid.defaults().pad(15);
 
         Texture[] slotBgTextures = new Texture[]{
             weaponSlotBgTexture,
@@ -665,7 +675,6 @@ public class WujiangScreen extends ApplicationAdapter {
             mountSlotBgTexture,
             bookSlotBgTexture
         };
-
         Texture[] itemTextures = new Texture[]{
             weaponItemTexture,
             armorItemTexture,
@@ -677,19 +686,32 @@ public class WujiangScreen extends ApplicationAdapter {
             Texture slotBg = slotBgTextures[i];
             Texture itemTex = itemTextures[i];
 
+            // 用Stack叠加底图和装备图
             Stack slot = new Stack();
 
-            slot.add(new Image(slotBg));
+            // 底图 260×260
+            Image bgImg = new Image(slotBg);
+            bgImg.setSize(260, 260);
+            bgImg.setScaling(Scaling.stretch);
+            slot.add(bgImg);
 
+            // 装备图：240×240，并且让它水平/垂直居中
             if (itemTex != null) {
                 Image itemImg = new Image(itemTex);
+                itemImg.setSize(240, 240);
                 itemImg.setScaling(Scaling.fit);
-                slot.add(itemImg);
+                // Container用来让装备图保持居中
+                Container<Image> itemContainer = new Container<>(itemImg);
+                itemContainer.center();
+                itemContainer.fillX();
+                itemContainer.fillY();
+                slot.add(itemContainer);
             }
 
             equipGrid.add(slot)
-                .size(160, 160)
+                .size(260, 260)
                 .pad(5);
+
         }
 
         equipmentSection.add(equipGrid)
@@ -697,7 +719,9 @@ public class WujiangScreen extends ApplicationAdapter {
             .padBottom(20)
             .row();
 
-        middleColumn.add(equipmentSection).fillX().row();
+        middleColumn.add(equipmentSection)
+            .fillX()
+            .row();
 
         // 大分割栏
         middleColumn.add(new Image(separatorTexture))
