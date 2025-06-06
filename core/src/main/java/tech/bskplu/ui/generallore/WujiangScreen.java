@@ -665,6 +665,7 @@ public class WujiangScreen extends ApplicationAdapter {
             .pad(15)
             .expandX()
             .row();
+        equipmentSection.setDebug(true);
 
         Table equipGrid = new Table(skin);
         equipGrid.defaults().pad(15);
@@ -703,19 +704,19 @@ public class WujiangScreen extends ApplicationAdapter {
                 // Container用来让装备图保持居中
                 Container<Image> itemContainer = new Container<>(itemImg);
                 itemContainer.center();
-                itemContainer.fillX();
-                itemContainer.fillY();
                 slot.add(itemContainer);
             }
 
             equipGrid.add(slot)
                 .size(260, 260)
-                .pad(5);
+                .pad(10);
 
         }
 
         equipmentSection.add(equipGrid)
-            .left()
+            .expandX()
+            .fillX()
+            .pad(15)
             .padBottom(20)
             .row();
 
