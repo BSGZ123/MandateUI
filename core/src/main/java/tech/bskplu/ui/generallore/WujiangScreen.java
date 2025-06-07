@@ -56,6 +56,10 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture biographyBgTexture;// 列传背景
     private Texture tabInfoTexture;// 属性导航框
 
+    private Texture verticalSeparatorTexture;
+    private Texture shortHorizontalTexture;
+    private Texture iconTexture;
+
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
     private float[] currentStats = {0.42f, 0.59f, 0.79f, 0.89f, 0.89f, 0.89f};
@@ -125,8 +129,8 @@ public class WujiangScreen extends ApplicationAdapter {
         // 7. 将列添加到根 Table
         // 使用百分比宽度，这对于ExtendViewport是合适的，列会根据根Table的实际宽度（可能已扩展）分配空间
         rootTable.add(leftColumn).prefWidth(Value.percentWidth(0.20f, rootTable)).expandY().fillY().padLeft(20).padTop(20).padBottom(20);
-        rootTable.add(middleColumn).prefWidth(Value.percentWidth(0.48f, rootTable)).expandY().fillY().padTop(20).padBottom(20).padLeft(10).padRight(10);
-        rootTable.add(rightColumn).prefWidth(Value.percentWidth(0.32f, rootTable)).expandY().fillY().padRight(20).padTop(20).padBottom(20);
+        rootTable.add(middleColumn).prefWidth(Value.percentWidth(0.50f, rootTable)).expandY().fillY().padTop(20).padBottom(20).padLeft(10).padRight(10);
+        rootTable.add(rightColumn).prefWidth(Value.percentWidth(0.30f, rootTable)).expandY().fillY().padRight(20).padTop(20).padBottom(20);
     }
 
     private void loadAssets() {
@@ -164,6 +168,9 @@ public class WujiangScreen extends ApplicationAdapter {
             generalFrameTexture = new Texture(Gdx.files.internal("GeneralFrame.png"));
             greenVerticalTexture= new Texture(Gdx.files.internal("green_vertical.png"));
             biographyBgTexture  = new Texture(Gdx.files.internal("scroll_bg.png"));
+            verticalSeparatorTexture = new Texture(Gdx.files.internal("verticalSeparator.png"));
+            shortHorizontalTexture = new Texture(Gdx.files.internal("shortHorizontal.png"));
+            iconTexture = new Texture(Gdx.files.internal("icon.png"));
 
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -732,61 +739,204 @@ public class WujiangScreen extends ApplicationAdapter {
             .row();
 
 
-        // ----- 6. 生涯战绩 -----
+        // ----- 6. 生涯战绩 （迭代版） -----
         Table careerSection = new Table(skin);
+        careerSection.defaults().pad(0);
+        careerSection.setDebug(true);
 
-        careerSection.add(new Label("生涯", skin, "titleBoxStyle"))
-            .colspan(8).left().padBottom(10).row();
+// ===== 第一行：生涯 选项卡 =====
+        Label careerTab = new Label("生涯", skin, "tabInfoStyle");
+        careerTab.setFontScale(1.4f);
+        careerTab.setAlignment(Align.left);
+        careerSection.add(careerTab)
+            .left()
+            .padLeft(10).padTop(5).padBottom(10)
+            .row();
 
+// ===== 第二行：三列 带竖向分隔栏 =====
+        Table row2 = new Table(skin);
+        row2.defaults().align(Align.top); // 每列顶部对齐
+
+// -------------------------------------------
+// （第一列）16 个生涯数据槽，两行各 8 个
+// -------------------------------------------
+        Table statsTable = new Table(skin);
+        statsTable.defaults().pad(5).align(Align.center);
+
+// 生涯槽名称分两行：
+// 第一行 8 个名称
         String[] careerStatNamesTop = {
             "白兵胜利", "单挑胜利", "计策成功", "战役胜利",
             "武将击杀", "武将俘虏", "内政成功", "白兵击杀"
         };
+// 第二行 8 个名称
         String[] careerStatNamesBottom = {
             "白兵失败", "单挑失败", "计策失败", "战役失败",
             "武将死亡", "武将被俘", "外交成功", "计策击杀"
         };
 
+// 第一行（8 个）
         for (int i = 0; i < careerStatNamesTop.length; i++) {
-            // 字段名
-            careerSection.add(new Label(careerStatNamesTop[i], skin))
-                .padRight(5);
-            // 数值框
-            Stack box = new Stack(
+            // Label 名称，用默认白字即可
+            //Label statLabel = new Label(careerStatNamesTop[i], skin);
+            //statsTable.add(statLabel).padRight(5);
+
+            // 数值框：Stack(背景图 + 数字)
+            Stack statBox = new Stack(
                 new Image(careerBoxBgTexture),
-                new Label("0", skin)
+                new Label("0", new Label.LabelStyle(font, Color.GREEN))
             );
+            // 最后一列“白兵击杀”用大格 75×35，其余 55×35
             if (i == careerStatNamesTop.length - 1) {
-                // 最后一项“白兵击杀”用大格
-                careerSection.add(box).size(75, 35).padRight(10);
+                statsTable.add(statBox).size(79, 79).padRight(10);
             } else {
-                // 其余用小格
-                careerSection.add(box).size(55, 35).padRight(10);
+                statsTable.add(statBox).size(79, 79).padRight(10);
             }
         }
-        // 换行并加点顶距
-        careerSection.row().padTop(5);
+        statsTable.row().padTop(5);
 
+// 第二行（8 个）
         for (int i = 0; i < careerStatNamesBottom.length; i++) {
-            careerSection.add(new Label(careerStatNamesBottom[i], skin))
-                .padRight(5);
-            Stack box = new Stack(
+//            Label statLabel = new Label(careerStatNamesBottom[i], skin);
+//            statsTable.add(statLabel).padRight(5);
+
+            Stack statBox = new Stack(
                 new Image(careerBoxBgTexture),
-                new Label("0", skin)
+                new Label("0", new Label.LabelStyle(font, Color.GREEN))
             );
             if (i == careerStatNamesBottom.length - 1) {
-                // 最后一项“计策击杀”用大格
-                careerSection.add(box).size(75, 35).padRight(10);
+                statsTable.add(statBox).size(75, 35).padRight(10);
             } else {
-                careerSection.add(box).size(55, 35).padRight(10);
+                statsTable.add(statBox).size(55, 35).padRight(10);
             }
         }
+        statsTable.row();
 
+// 把 statsTable 加到 row2 的第一列，垂直方向填满高度
+        row2.add(statsTable)
+            .fillY()
+            .expandY();
+
+// ===== 在第一列和第二列之间插入竖直分隔线 =====
+        Image vertSep1 = new Image(verticalSeparatorTexture);
+        vertSep1.setScaling(Scaling.fillY); // 纵向填充
+        row2.add(vertSep1)
+            .fillY()
+            .padLeft(10).padRight(10)
+            .expandY();
+
+// -------------------------------------------
+// （第二列）三行两列的扩展属性表格
+// -------------------------------------------
+        Table attrTable = new Table(skin);
+        attrTable.defaults().pad(5).align(Align.center);
+
+// 第一行：五行 + 输入框 | 亲密 + 输入框
+        Label labelWuXing = new Label("五行", skin, "titleBoxStyle");
+        labelWuXing.setFontScale(1f);
+        attrTable.add(labelWuXing).padRight(3);
+        Label fieldWuXing = new Label("", skin, "contentBoxStyle");
+        fieldWuXing.setAlignment(Align.center);
+        attrTable.add(fieldWuXing).minWidth(80).minHeight(35).padRight(15);
+
+        Label labelQinMi = new Label("亲密", skin, "titleBoxStyle");
+        labelQinMi.setFontScale(1f);
+        attrTable.add(labelQinMi).padRight(3);
+        Label fieldQinMi = new Label("", skin, "contentBoxStyle");
+        fieldQinMi.setAlignment(Align.center);
+        attrTable.add(fieldQinMi).minWidth(80).minHeight(35);
+        attrTable.row();
+
+// 第二行：称号 + 输入框 | 战队 + 输入框
+        Label labelChengHao = new Label("称号", skin, "titleBoxStyle");
+        labelChengHao.setFontScale(1f);
+        attrTable.add(labelChengHao).padRight(3);
+        Label fieldChengHao = new Label("", skin, "contentBoxStyle");
+        fieldChengHao.setAlignment(Align.center);
+        attrTable.add(fieldChengHao).minWidth(80).minHeight(35).padRight(15);
+
+        Label labelZhanDui = new Label("战队", skin, "titleBoxStyle");
+        labelZhanDui.setFontScale(1f);
+        attrTable.add(labelZhanDui).padRight(3);
+        Label fieldZhanDui = new Label("", skin, "contentBoxStyle");
+        fieldZhanDui.setAlignment(Align.center);
+        attrTable.add(fieldZhanDui).minWidth(80).minHeight(35);
+        attrTable.row();
+
+// 第三行：野心 + 输入框 | （占位空白两格）
+        Label labelYeXin = new Label("野心", skin, "titleBoxStyle");
+        labelYeXin.setFontScale(1f);
+        attrTable.add(labelYeXin).padRight(3);
+        Label fieldYeXin = new Label("", skin, "contentBoxStyle");
+        fieldYeXin.setAlignment(Align.center);
+        attrTable.add(fieldYeXin).minWidth(80).minHeight(35).padRight(15);
+
+// 将剩余两格填充空白（只是占位，不放任何 Widget）
+        attrTable.add().minWidth(80).minHeight(35).padRight(15);
+        attrTable.add().minWidth(80).minHeight(35);
+        attrTable.row();
+
+// 把 attrTable 加到 row2 的第二列
+        row2.add(attrTable)
+            .fillY()
+            .expandY();
+
+// ===== 在第二列和第三列之间插入竖直分隔线 =====
+        Image vertSep2 = new Image(verticalSeparatorTexture);
+        vertSep2.setScaling(Scaling.fillY);
+        row2.add(vertSep2)
+            .fillY()
+            .padLeft(10).padRight(10)
+            .expandY();
+
+// -------------------------------------------
+// （第三列）“关系” 栏：垂直排列 若干 Stack（短横框 + 图标）
+// -------------------------------------------
+        Table relationColumn = new Table(skin);
+        relationColumn.defaults().pad(5).align(Align.center);
+
+// 假设需要 3 个“关系”项，你可以根据实际替换成任意数量
+        for (int i = 0; i < 3; i++) {
+            // Stack：二短横框背景 + 图标
+            Stack relSlot = new Stack();
+
+            // 背景：使用 shortHorizontalTexture
+            Image shortBg = new Image(shortHorizontalTexture);
+            shortBg.setScaling(Scaling.stretch);
+            relSlot.add(shortBg);
+
+            // 图标：在正中
+            Image iconImg = new Image(iconTexture);
+            Container<Image> iconContainer = new Container<>(iconImg);
+            iconContainer.center();
+            iconContainer.fillX().fillY();
+            relSlot.add(iconContainer);
+
+            // 将每个 Stack 添加到 relationColumn
+            relationColumn.add(relSlot)
+                // 给定一个固定高度，例如 60px，高度可按素材实际高度或比例设置
+                .minWidth(80).minHeight(60)
+                .row();
+        }
+
+// 把 relationColumn 加到 row2 的第三列
+        row2.add(relationColumn)
+            .fillY()
+            .expandY();
+
+// ===== 把第二行（row2）加入 careerSection =====
+        careerSection.add(row2)
+            .fillX()
+            .expandY()
+            .row();
+
+// ===== 最终把 careerSection 加入到 middleColumn =====
         middleColumn.add(careerSection)
             .fillX()
             .expandY()
             .top()
             .row();
+
     }
 
     private void populateRightColumn(Table rightColumn) {
