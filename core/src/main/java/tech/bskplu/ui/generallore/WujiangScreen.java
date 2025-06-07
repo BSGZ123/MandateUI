@@ -60,6 +60,7 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture shortHorizontalTexture;
     private Texture iconTexture;
     private Texture bigCareerBoxBgTexture;
+    private Texture returnButtonTexture;
 
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
@@ -164,6 +165,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
             buttonUpTexture = new Texture(Gdx.files.internal("button_down.png"));
             buttonDownTexture = new Texture(Gdx.files.internal("button_up.png"));
+            returnButtonTexture = new Texture(Gdx.files.internal("return_button.png"));
             tabInfoTexture = new Texture(Gdx.files.internal("tab_information.png"));
 
             generalFrameTexture = new Texture(Gdx.files.internal("GeneralFrame.png"));
@@ -181,7 +183,7 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/野心亲密称号装列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/男野心亲密称号装列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
 
             // 字体初始化，默认Libgdx默认字体，不支持中文
@@ -239,6 +241,13 @@ public class WujiangScreen extends ApplicationAdapter {
         Label.LabelStyle tabInfoStyle = new Label.LabelStyle(font, Color.WHITE);
         tabInfoStyle.background = tabInfoBg;
         skin.add("tabInfoStyle", tabInfoStyle);
+
+        TextButton.TextButtonStyle backButtonStyle = new TextButton.TextButtonStyle();
+        backButtonStyle.font = font;
+        backButtonStyle.fontColor = Color.WHITE;
+        backButtonStyle.up   = new TextureRegionDrawable(new TextureRegion(returnButtonTexture));
+        backButtonStyle.down = new TextureRegionDrawable(new TextureRegion(returnButtonTexture));
+        skin.add("backStyle", backButtonStyle);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = font;
@@ -303,7 +312,18 @@ public class WujiangScreen extends ApplicationAdapter {
         }
 
         // 性别圆框
+        Stack genderStack = new Stack();
         Image genderIcon = new Image(genderMaleTexture);
+
+        genderStack.add(genderIcon);
+        Label genderText = new Label("男", new Label.LabelStyle(font, Color.WHITE));
+        genderText.setFontScale(1.4f);
+        genderText.setAlignment(Align.center);
+
+        Container<Label> genderTextC = new Container<>(genderText);
+        genderTextC.fill().center();
+        genderStack.add(genderTextC);
+
 
         // 出仕竖条
         Label.LabelStyle greenBarStyle = new Label.LabelStyle(font, Color.GREEN);
@@ -324,7 +344,7 @@ public class WujiangScreen extends ApplicationAdapter {
         leftSideTable.defaults().uniformX().pad(5);
 
         // 第一行 性别圆框，水平居中
-        leftSideTable.add(genderIcon)
+        leftSideTable.add(genderStack)
             .width(68).height(76)
             .center()
             .row();
@@ -786,10 +806,12 @@ public class WujiangScreen extends ApplicationAdapter {
             bgImg.setScaling(Scaling.stretch);
 
             // 垂直排列
+            Label nameLabel = new Label(careerStatNamesTop[i], skin);
+            nameLabel.setFontScale(0.8f);
             VerticalGroup vg = new VerticalGroup();
             vg.space(2);// 行间距
             vg.center();
-            vg.addActor(new Label(careerStatNamesTop[i], skin));
+            vg.addActor(nameLabel);
             vg.addActor(new Label("0", new Label.LabelStyle(font, Color.GREEN)));
 
             Stack statBox = new Stack(bgImg,vg);
@@ -810,10 +832,12 @@ public class WujiangScreen extends ApplicationAdapter {
             Image bgImg = new Image(bgTex);
             bgImg.setScaling(Scaling.stretch);
 
+            Label nameLabel = new Label(careerStatNamesBottom[i], skin);
+            nameLabel.setFontScale(0.8f);
             VerticalGroup vg = new VerticalGroup();
             vg.space(2);
             vg.center();
-            vg.addActor(new Label(careerStatNamesBottom[i], skin));
+            vg.addActor(nameLabel);
             vg.addActor(new Label("0", new Label.LabelStyle(font, Color.GREEN)));
 
             Stack statBox = new Stack(bgImg,vg);
@@ -925,17 +949,9 @@ public class WujiangScreen extends ApplicationAdapter {
 
     private void populateRightColumn(Table rightColumn) {
         rightColumn.top().pad(10);
+        rightColumn.setDebug(true);
 
-        // ----- 1. 人物关系按钮 -----
-//        TextButton relationsButton = new TextButton("人物关系", skin, "default");
-//        rightColumn.add(relationsButton)
-//            .prefWidth(Value.percentWidth(0.8f, rightColumn))
-//            .height(60)
-//            .center()
-//            .padBottom(20)
-//            .row();
-
-        // ----- 2. 列传显示区 -----
+        // ----- 列传显示区 -----
         Image bioBgImage = new Image(biographyBgTexture);
 
         String biographyExample = "这里是武将的生平事迹...\n" +
@@ -950,27 +966,26 @@ public class WujiangScreen extends ApplicationAdapter {
 
         Stack bioStack = new Stack();
         bioStack.add(bioBgImage);
-        // 把 Label 放在 bioStack 的内边距容器里，以留出背景四周的边框
+        // 把Label放在bioStack的内边距容器里，以留出背景四周的边框
         Container<Label> bioTextContainer = new Container<>(biographyLabel);
         bioTextContainer.pad(20);
         bioTextContainer.fill();
         bioStack.add(bioTextContainer);
 
-        // 2.4 添加到右列，并让它占据中部主要空间
+        // 添加到右列，并让它占据中部主要空间
         rightColumn.add(bioStack)
-            .expand()
+            .expandX()
             .fillX()
-            .height(Value.percentHeight(0.6f, rightColumn))  // 根据需要调整高度占比
+            .height(Value.percentHeight(0.8f, rightColumn))
             .row();
 
-        // ----- 3. 翻页 & 返回 按钮组 -----
+        // ----- 翻页与返回按钮组 -----
         Table navButtons = new Table(skin);
 
         TextButton prevButton = new TextButton("上一页", skin, "default");
         TextButton nextButton = new TextButton("下一页", skin, "default");
-        TextButton backButton = new TextButton("返回", skin, "default");
+        TextButton backButton = new TextButton("", skin, "backStyle");
 
-        // 点击时更新 biographyLabel.setText(...)，此处示例
         prevButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -1009,9 +1024,11 @@ public class WujiangScreen extends ApplicationAdapter {
             .expandX();
 
         rightColumn.add(navButtons)
-            .fillX()
             .bottom()
+            .expandY()
+            .fillX()
             .padTop(10)
+            .padBottom(15)
             .row();
     }
 
@@ -1084,6 +1101,7 @@ public class WujiangScreen extends ApplicationAdapter {
         if (careerBoxBgTexture != null) careerBoxBgTexture.dispose();
         if (buttonUpTexture != null) buttonUpTexture.dispose();
         if (buttonDownTexture != null) buttonDownTexture.dispose();
+        if (returnButtonTexture != null) returnButtonTexture.dispose();
 
         if (generalFrameTexture  != null) generalFrameTexture.dispose();
         if (greenVerticalTexture != null) greenVerticalTexture.dispose();
