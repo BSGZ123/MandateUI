@@ -66,6 +66,9 @@ public class WujiangScreen extends ApplicationAdapter {
     private RadarChartActor radarChart;
     private float[] currentStats = {0.42f, 0.59f, 0.79f, 0.89f, 0.89f, 0.89f};
 
+    // 类成员区，定义四个装备名称
+    private List<String> equipmentNames = Arrays.asList("破军剑", "黯曜铠甲", "赤兔马", "兵书");
+
     // UI 元素引用 (如果需要动态修改)
     private Label levelLabel, expLabel;
     private Label forceValueLabel, cityValueLabel, salaryValueLabel;
@@ -156,19 +159,18 @@ public class WujiangScreen extends ApplicationAdapter {
             mountSlotBgTexture = new Texture(Gdx.files.internal("mount_slot.png"));
             bookSlotBgTexture = new Texture(Gdx.files.internal("accessory_slot.png"));
 
-            weaponItemTexture = new Texture(Gdx.files.internal("ArmyBreakingSword.png"));
-            armorItemTexture = new Texture(Gdx.files.internal("ObsidianArmor.png"));
-            mountItemTexture = new Texture(Gdx.files.internal("RedHare.png"));
-            // bookItemTexture = new Texture(Gdx.files.internal("Army-Breaking Sword.png"));
+            weaponItemTexture = new Texture(Gdx.files.internal("armyBreakingSword.png"));
+            armorItemTexture = new Texture(Gdx.files.internal("obsidianArmor.png"));
+            mountItemTexture = new Texture(Gdx.files.internal("redHare.png"));
+            // bookItemTexture = new Texture(Gdx.files.internal("military_strategy.png"));
 
             careerBoxBgTexture = new Texture(Gdx.files.internal("stat_win.png"));
-
             buttonUpTexture = new Texture(Gdx.files.internal("button_down.png"));
             buttonDownTexture = new Texture(Gdx.files.internal("button_up.png"));
             returnButtonTexture = new Texture(Gdx.files.internal("return_button.png"));
             tabInfoTexture = new Texture(Gdx.files.internal("tab_information.png"));
 
-            generalFrameTexture = new Texture(Gdx.files.internal("GeneralFrame.png"));
+            generalFrameTexture = new Texture(Gdx.files.internal("generalFrame.png"));
             greenVerticalTexture= new Texture(Gdx.files.internal("green_vertical.png"));
             biographyBgTexture  = new Texture(Gdx.files.internal("scroll_bg.png"));
             verticalSeparatorTexture = new Texture(Gdx.files.internal("verticalSeparator.png"));
@@ -183,7 +185,7 @@ public class WujiangScreen extends ApplicationAdapter {
             param.minFilter = Texture.TextureFilter.Linear;
 
             param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/男野心亲密称号装列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+                "/破兵书兔黯曜铠甲男野心亲密称号装列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
                 "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
 
             // 字体初始化，默认Libgdx默认字体，不支持中文
@@ -716,30 +718,38 @@ public class WujiangScreen extends ApplicationAdapter {
             Texture slotBg = slotBgTextures[i];
             Texture itemTex = itemTextures[i];
 
-            // 用Stack叠加底图和装备图
             Stack slot = new Stack();
 
-            // 底图 260×260
+            // 底图
             Image bgImg = new Image(slotBg);
             bgImg.setSize(260, 260);
             bgImg.setScaling(Scaling.stretch);
             slot.add(bgImg);
 
-            // 装备图：240×240，并且让它水平/垂直居中
+            // 装备图 + 名称
             if (itemTex != null) {
+                // 装备图
                 Image itemImg = new Image(itemTex);
                 itemImg.setSize(240, 240);
                 itemImg.setScaling(Scaling.fit);
-                // Container用来让装备图保持居中
                 Container<Image> itemContainer = new Container<>(itemImg);
                 itemContainer.center();
                 slot.add(itemContainer);
+
+                // 装备名称
+                String name = equipmentNames.get(i);
+                Label.LabelStyle nameStyle = new Label.LabelStyle(font, Color.WHITE);
+                Label nameLabel = new Label(name, nameStyle);
+                nameLabel.setAlignment(Align.center);
+
+                Container<Label> labelContainer = new Container<>(nameLabel);
+                labelContainer.bottom().fillX().padBottom(8);
+                slot.add(labelContainer);
             }
 
             equipGrid.add(slot)
                 .size(260, 260)
                 .pad(10);
-
         }
 
         equipmentSection.add(equipGrid)
