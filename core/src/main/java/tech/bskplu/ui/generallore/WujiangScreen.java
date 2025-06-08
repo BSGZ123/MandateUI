@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -44,6 +45,7 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture titleBgTexture;// 称号背景框 (如 "超级")
     private Texture separatorTexture;// 大分割栏
     private Texture textBoxBackgroundTexture;//势力、城市等内容的背景框
+    private Texture iconTroopTypeTexture, iconSpecialtyTexture, iconTroopCountTexture, iconMobilityTexture;// 部队-新增四个图标
     private Texture twoDashesTexture;// 二分栏
     private Texture smallGreenFrameTexture;
     private Texture specialBlueGreenFrameTexture;
@@ -51,7 +53,7 @@ public class WujiangScreen extends ApplicationAdapter {
     private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
     private Texture careerBoxBgTexture;// 战绩格子背景
     private Texture buttonUpTexture, buttonDownTexture;// 按钮背景
-    private Texture generalFrameTexture;// “武将资料” 头框
+    private Texture generalFrameTexture;// 武将资料框
     private Texture greenVerticalTexture;// 绿色竖条
     private Texture biographyBgTexture;// 列传背景
     private Texture tabInfoTexture;// 属性导航框
@@ -64,7 +66,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
-    private float[] currentStats = {0.42f, 0.59f, 0.79f, 0.89f, 0.89f, 0.89f};
+    float[] fiveStats = new float[] { 0.75f, 0.65f, 0.85f, 0.55f, 0.90f };
 
     // 类成员区，定义四个装备名称
     private List<String> equipmentNames = Arrays.asList("破军剑", "黯曜铠甲", "赤兔马", "兵书");
@@ -153,6 +155,10 @@ public class WujiangScreen extends ApplicationAdapter {
             textBoxBackgroundTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
             smallGreenFrameTexture = new Texture(Gdx.files.internal("small_green_frame.png"));
             specialBlueGreenFrameTexture = new Texture(Gdx.files.internal("special_bluegreen_frame.png"));
+            iconTroopTypeTexture = new Texture(Gdx.files.internal("tf_xiandeng.png"));
+            iconSpecialtyTexture  = new Texture(Gdx.files.internal("tf_xianfa.png"));
+            iconTroopCountTexture = new Texture(Gdx.files.internal("tf_xushi.png"));
+            iconMobilityTexture   = new Texture(Gdx.files.internal("tf_jizou.png"));
 
             weaponSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
             armorSlotBgTexture = new Texture(Gdx.files.internal("armor_slot.png"));
@@ -403,7 +409,7 @@ public class WujiangScreen extends ApplicationAdapter {
 
         // 能力雷达图（五维）
         // 原来固定宽高 改为扩展填充+相对高度
-        radarChart = new RadarChartActor(currentStats);
+        radarChart = new RadarChartActor(fiveStats);
         leftColumn.add(radarChart)
             .expandX()
             .fillX()
@@ -618,31 +624,48 @@ public class WujiangScreen extends ApplicationAdapter {
         troopsLabel.setAlignment(Align.center);
         troopsRow.add(troopsLabel).minWidth(120).minHeight(55).padRight(30);
 
+        // 定义图标统一尺寸
+        float iconSize = 64f;
+
         // （b）兵种 山军
-        troopsRow.add(new Label("兵种", skin, "golden")).padRight(3);
-        Label troopTypeValue = new Label("山军", new Label.LabelStyle(font, Color.WHITE));
-        troopTypeValue.setAlignment(Align.center);
-        troopsRow.add(troopTypeValue).minWidth(80).minHeight(40).padRight(15);
+        troopsRow.add(new Image(iconTroopTypeTexture))
+            .size(iconSize, iconSize)
+            .padRight(5);
+        troopsRow.add(new Label("兵种", skin, "golden"))
+            .padRight(3);
+        troopsRow.add(new Label("山军", new Label.LabelStyle(font, Color.WHITE)))
+            .minWidth(80).minHeight(40)
+            .padRight(15);
 
         // （c）专精 剑
-        troopsRow.add(new Label("专精", skin, "golden")).padRight(3);
-        Label specialtyValue = new Label("剑", new Label.LabelStyle(font, Color.WHITE));
-        specialtyValue.setAlignment(Align.center);
-        troopsRow.add(specialtyValue).minWidth(80).minHeight(40).padRight(15);
+        troopsRow.add(new Image(iconSpecialtyTexture))
+            .size(iconSize, iconSize)
+            .padRight(5);
+        troopsRow.add(new Label("专精", skin, "golden"))
+            .padRight(3);
+        troopsRow.add(new Label("剑", new Label.LabelStyle(font, Color.WHITE)))
+            .minWidth(80).minHeight(40)
+            .padRight(15);
 
         // （d）兵力 3000
-        troopsRow.add(new Label("兵力", skin, "golden")).padRight(3);
-        Label troopCountValue = new Label("3000", new Label.LabelStyle(font, Color.WHITE));
-        troopCountValue.setAlignment(Align.center);
-        troopsRow.add(troopCountValue).minWidth(80).minHeight(40).padRight(15);
+        troopsRow.add(new Image(iconTroopCountTexture))
+            .size(iconSize, iconSize)
+            .padRight(5);
+        troopsRow.add(new Label("兵力", skin, "golden"))
+            .padRight(3);
+        troopsRow.add(new Label("3000", new Label.LabelStyle(font, Color.WHITE)))
+            .minWidth(80).minHeight(40)
+            .padRight(15);
 
         // （e）机动 20
-        troopsRow.add(new Label("机动", skin, "golden")).padRight(3);
-        Label mobilityValue = new Label("20", new Label.LabelStyle(font, Color.WHITE));
-        mobilityValue.setAlignment(Align.center);
-        troopsRow.add(mobilityValue).minWidth(80).minHeight(40);
+        troopsRow.add(new Image(iconMobilityTexture))
+            .size(iconSize, iconSize)
+            .padRight(5);
+        troopsRow.add(new Label("机动", skin, "golden"))
+            .padRight(3);
+        troopsRow.add(new Label("20", new Label.LabelStyle(font, Color.WHITE)))
+            .minWidth(80).minHeight(40);
 
-        // 将部队行加入leftNestedTable
         leftNestedTable.add(troopsRow).left().row();
 
         // ===== 右侧的人物列传标题栏，只放一个 Label，下面留空 =====
@@ -1112,6 +1135,10 @@ public class WujiangScreen extends ApplicationAdapter {
         if (buttonUpTexture != null) buttonUpTexture.dispose();
         if (buttonDownTexture != null) buttonDownTexture.dispose();
         if (returnButtonTexture != null) returnButtonTexture.dispose();
+        if (iconTroopTypeTexture != null) iconTroopTypeTexture.dispose();
+        if (iconSpecialtyTexture  != null) iconSpecialtyTexture.dispose();
+        if (iconTroopCountTexture != null) iconTroopCountTexture.dispose();
+        if (iconMobilityTexture   != null) iconMobilityTexture.dispose();
 
         if (generalFrameTexture  != null) generalFrameTexture.dispose();
         if (greenVerticalTexture != null) greenVerticalTexture.dispose();
@@ -1121,104 +1148,112 @@ public class WujiangScreen extends ApplicationAdapter {
     }
 
     // --- 自定义雷达图 Actor ---
-    // (RadarChartActor 代码保持不变)
+    // (RadarChartActor)
     public static class RadarChartActor extends Actor {
         private ShapeRenderer shapeRenderer;
         private float[] stats;
-        private Color axisColor = new Color(0.5f, 0.5f, 0.5f, 1f);// 轴线颜色
-        private Color polygonColor = new Color(0.2f, 0.8f, 0.2f, 0.6f);// 属性多边形颜色
-        private Color polygonBorderColor = new Color(0.3f, 1f, 0.3f, 1f);// 属性多边形边框颜色
+        private int    dimensions;
+        // 新配色：浅灰轴线、半透明蓝色填充、深蓝边框
+        private Color axisColor          = new Color(0.7f, 0.7f, 0.7f, 1f);
+        private Color polygonColor       = new Color(0.8f, 0.6f, 0.2f, 0.5f);
+        private Color polygonBorderColor = new Color(0.8f, 0.6f, 0.2f, 1f);
 
+        /** @param initialStats 长度即为雷达图的维度数 */
         public RadarChartActor(float[] initialStats) {
-            this.stats = initialStats;
+            this.stats      = initialStats;
+            this.dimensions = initialStats.length;
             this.shapeRenderer = new ShapeRenderer();
         }
 
         public void setStats(float[] newStats) {
-            this.stats = newStats;
+            this.stats      = newStats;
+            this.dimensions = newStats.length;
         }
 
         @Override
         public void draw(Batch batch, float parentAlpha) {
             batch.end();
 
+            // 同步相机/变换矩阵
             shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
             shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
-            // 应用Actor的位置和原点
             shapeRenderer.translate(getX() + getOriginX(), getY() + getOriginY(), 0);
             shapeRenderer.rotate(0, 0, 1, getRotation());
             shapeRenderer.scale(getScaleX(), getScaleY(), 1);
             shapeRenderer.translate(-getOriginX(), -getOriginY(), 0);
 
+            float centerX = getWidth()  / 2f;
+            float centerY = getHeight() / 2f;
+            float radius  = Math.min(getWidth(), getHeight()) / 2f * 0.9f;
+            float angleStep = (float)(2 * Math.PI / dimensions);
 
-            float centerX = getWidth() / 2;
-            float centerY = getHeight() / 2;
-            float radius = Math.min(getWidth(), getHeight()) / 2 * 0.9f;
-
+            // 画轴线
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(axisColor);
-
-            for (int i = 0; i < 6; i++) {
-                float angleRad = (float) (Math.PI / 2 - (i * Math.PI / 3));
-                float outerX = centerX + radius * (float) Math.cos(angleRad);
-                float outerY = centerY + radius * (float) Math.sin(angleRad);
-                shapeRenderer.line(centerX, centerY, outerX, outerY);
+            for (int i = 0; i < dimensions; i++) {
+                float angle = (float)(Math.PI/2 - i * angleStep);
+                float x = centerX + radius * (float)Math.cos(angle);
+                float y = centerY + radius * (float)Math.sin(angle);
+                shapeRenderer.line(centerX, centerY, x, y);
             }
+            shapeRenderer.end();
 
+            // 画同心多边形网格（4级）
             int concentricLevels = 4;
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             for (int level = 1; level <= concentricLevels; level++) {
-                float currentRadius = radius * ((float) level / concentricLevels);
-                for (int i = 0; i < 6; i++) {
-                    float angle1Rad = (float) (Math.PI / 2 - (i * Math.PI / 3));
-                    float angle2Rad = (float) (Math.PI / 2 - ((i + 1) * Math.PI / 3));
-                    float x1 = centerX + currentRadius * (float) Math.cos(angle1Rad);
-                    float y1 = centerY + currentRadius * (float) Math.sin(angle1Rad);
-                    float x2 = centerX + currentRadius * (float) Math.cos(angle2Rad);
-                    float y2 = centerY + currentRadius * (float) Math.sin(angle2Rad);
+                float r = radius * ((float)level / concentricLevels);
+                for (int i = 0; i < dimensions; i++) {
+                    float a1 = (float)(Math.PI/2 - i * angleStep);
+                    float a2 = (float)(Math.PI/2 - ((i+1)%dimensions) * angleStep);
+                    float x1 = centerX + r * (float)Math.cos(a1);
+                    float y1 = centerY + r * (float)Math.sin(a1);
+                    float x2 = centerX + r * (float)Math.cos(a2);
+                    float y2 = centerY + r * (float)Math.sin(a2);
                     shapeRenderer.line(x1, y1, x2, y2);
                 }
             }
             shapeRenderer.end();
 
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(polygonColor);
-            for (int i = 0; i < 6; i++) {
-                if (stats == null || stats.length < 6) break;
-                float statValue = Math.max(0, Math.min(1, stats[i]));
+            // 填充多边形
+            if (stats != null && stats.length == dimensions) {
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(polygonColor);
+                for (int i = 0; i < dimensions; i++) {
+                    float v1 = MathUtils.clamp(stats[i], 0f, 1f) * radius;
+                    float a1 = (float)(Math.PI/2 - i * angleStep);
+                    float x1 = centerX + v1 * (float)Math.cos(a1);
+                    float y1 = centerY + v1 * (float)Math.sin(a1);
 
-                float angle1Rad = (float) (Math.PI / 2 - (i * Math.PI / 3));
-                float statRadius1 = radius * statValue;
-                float x1 = centerX + statRadius1 * (float) Math.cos(angle1Rad);
-                float y1 = centerY + statRadius1 * (float) Math.sin(angle1Rad);
+                    int ni = (i+1) % dimensions;
+                    float v2 = MathUtils.clamp(stats[ni], 0f, 1f) * radius;
+                    float a2 = (float)(Math.PI/2 - ni * angleStep);
+                    float x2 = centerX + v2 * (float)Math.cos(a2);
+                    float y2 = centerY + v2 * (float)Math.sin(a2);
 
-                int next = (i + 1) % 6;
-                float statValueNext = Math.max(0, Math.min(1, stats[next]));
-                float angle2Rad = (float) (Math.PI / 2 - (next * Math.PI / 3));
-                float statRadius2 = radius * statValueNext;
-                float x2 = centerX + statRadius2 * (float) Math.cos(angle2Rad);
-                float y2 = centerY + statRadius2 * (float) Math.sin(angle2Rad);
+                    shapeRenderer.triangle(centerX, centerY, x1, y1, x2, y2);
+                }
+                shapeRenderer.end();
 
-                shapeRenderer.triangle(centerX, centerY, x1, y1, x2, y2);
+                // 边框
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+                shapeRenderer.setColor(polygonBorderColor);
+                for (int i = 0; i < dimensions; i++) {
+                    float v = MathUtils.clamp(stats[i], 0f, 1f) * radius;
+                    float a = (float)(Math.PI/2 - i * angleStep);
+                    float x = centerX + v * (float)Math.cos(a);
+                    float y = centerY + v * (float)Math.sin(a);
+
+                    int ni = (i+1) % dimensions;
+                    float vNext = MathUtils.clamp(stats[ni], 0f, 1f) * radius;
+                    float aNext = (float)(Math.PI/2 - ni * angleStep);
+                    float xNext = centerX + vNext * (float)Math.cos(aNext);
+                    float yNext = centerY + vNext * (float)Math.sin(aNext);
+
+                    shapeRenderer.line(x, y, xNext, yNext);
+                }
+                shapeRenderer.end();
             }
-            shapeRenderer.end();
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(polygonBorderColor);
-            for (int i = 0; i < 6; i++) {
-                if (stats == null || stats.length < 6) break;
-                float statValue = Math.max(0, Math.min(1, stats[i]));
-                float angle1Rad = (float) (Math.PI / 2 - (i * Math.PI / 3));
-                float x1 = centerX + radius * statValue * (float) Math.cos(angle1Rad);
-                float y1 = centerY + radius * statValue * (float) Math.sin(angle1Rad);
-
-                int next = (i + 1) % 6;
-                float statValueNext = Math.max(0, Math.min(1, stats[next]));
-                float angle2Rad = (float) (Math.PI / 2 - (next * Math.PI / 3));
-                float x2 = centerX + radius * statValueNext * (float) Math.cos(angle2Rad);
-                float y2 = centerY + radius * statValueNext * (float) Math.sin(angle2Rad);
-                shapeRenderer.line(x1, y1, x2, y2);
-            }
-            shapeRenderer.end();
 
             batch.begin();
         }
@@ -1227,4 +1262,5 @@ public class WujiangScreen extends ApplicationAdapter {
             if (shapeRenderer != null) shapeRenderer.dispose();
         }
     }
+
 }
