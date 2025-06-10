@@ -25,7 +25,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.util.Arrays;
 import java.util.List;
 
-public class WujiangScreen extends ApplicationAdapter {
+public class GeneralProfileScreen extends ApplicationAdapter {
 
     private Stage stage;
     private Viewport viewport;
@@ -69,7 +69,7 @@ public class WujiangScreen extends ApplicationAdapter {
     // 类成员区，定义四个装备名称
     private List<String> equipmentNames = Arrays.asList("破军剑", "黯曜铠甲", "赤兔马", "兵书");
 
-    // UI 元素引用 (如果需要动态修改)
+    // UI元素引用 (如果需要动态修改)
     private Label levelLabel, expLabel;
     private Label forceValueLabel, cityValueLabel, salaryValueLabel;
 
@@ -85,7 +85,7 @@ public class WujiangScreen extends ApplicationAdapter {
     private static final float WORLD_HEIGHT = 1080;
 
 
-    public WujiangScreen() {
+    public GeneralProfileScreen() {
         // 构造函数中可以初始化一些东西，但主要加载和UI构建在 show() 中
         skills = Arrays.asList("后勤", "无双", "内连", "反击", "奇谋", "铁壁", "迅捷", "固守");
     }

@@ -2,8 +2,7 @@ package tech.bskplu.ui.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import tech.bskplu.ui.Main;
-import tech.bskplu.ui.generallore.WujiangScreen;
+import tech.bskplu.ui.generallore.GeneralProfileScreen;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -17,7 +16,7 @@ public class Lwjgl3Launcher {
 //    }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new WujiangScreen(), getDefaultConfiguration());
+        return new Lwjgl3Application(new GeneralProfileScreen(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
