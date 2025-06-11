@@ -1139,6 +1139,16 @@ public class GeneralProfileScreen extends ApplicationAdapter {
         if (generalFrameTexture  != null) generalFrameTexture.dispose();
         if (greenVerticalTexture != null) greenVerticalTexture.dispose();
         if (biographyBgTexture   != null) biographyBgTexture.dispose();
+        if (portraitFrame != null) portraitFrame.dispose();
+        if (separatorTexture != null) separatorTexture.dispose();
+        if (twoDashesTexture != null) twoDashesTexture.dispose();
+        if (smallGreenFrameTexture != null) smallGreenFrameTexture.dispose();
+        if (specialBlueGreenFrameTexture != null) specialBlueGreenFrameTexture.dispose();
+        if (verticalSeparatorTexture != null) verticalSeparatorTexture.dispose();
+        if (shortHorizontalTexture != null) shortHorizontalTexture.dispose();
+        if (bigCareerBoxBgTexture != null) bigCareerBoxBgTexture.dispose();
+        if (tabInfoTexture != null) tabInfoTexture.dispose();
+        if (iconTexture != null) iconTexture.dispose();
 
         if (radarChart != null) radarChart.dispose();
     }
