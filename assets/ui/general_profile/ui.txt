@@ -1,0 +1,243 @@
+ui.png
+size: 1852, 1355
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+accessory_slot
+  rotate: false
+  xy: 725, 299
+  size: 260, 260
+  orig: 260, 260
+  offset: 0, 0
+  index: -1
+armor_slot
+  rotate: false
+  xy: 985, 299
+  size: 260, 260
+  orig: 260, 260
+  offset: 0, 0
+  index: -1
+armyBreakingSword
+  rotate: false
+  xy: 963, 59
+  size: 240, 240
+  orig: 240, 240
+  offset: 0, 0
+  index: -1
+bg_warlord_panel
+  rotate: false
+  xy: 0, 559
+  size: 1475, 710
+  orig: 1475, 710
+  offset: 0, 0
+  index: -1
+bigCareerBox
+  rotate: false
+  xy: 379, 59
+  size: 120, 79
+  orig: 120, 79
+  offset: 0, 0
+  index: -1
+button_down
+  rotate: false
+  xy: 996, 0
+  size: 115, 45
+  orig: 115, 45
+  offset: 0, 0
+  index: -1
+button_up
+  rotate: false
+  xy: 1111, 0
+  size: 115, 45
+  orig: 115, 45
+  offset: 0, 0
+  index: -1
+divider_h
+  rotate: false
+  xy: 0, 0
+  size: 996, 31
+  orig: 996, 31
+  offset: 0, 0
+  index: -1
+equip_slot
+  rotate: false
+  xy: 1245, 299
+  size: 260, 260
+  orig: 260, 260
+  offset: 0, 0
+  index: -1
+generalFrame
+  rotate: false
+  xy: 1648, 0
+  size: 204, 59
+  orig: 204, 59
+  offset: 0, 0
+  index: -1
+green_vertical
+  rotate: false
+  xy: 898, 59
+  size: 57, 106
+  orig: 57, 106
+  offset: 0, 0
+  index: -1
+icon
+  rotate: false
+  xy: 0, 59
+  size: 65, 59
+  orig: 65, 59
+  offset: 0, 0
+  index: -1
+icon_female
+  rotate: false
+  xy: 243, 59
+  size: 68, 76
+  orig: 68, 76
+  offset: 0, 0
+  index: -1
+icon_male
+  rotate: false
+  xy: 311, 59
+  size: 68, 76
+  orig: 68, 76
+  offset: 0, 0
+  index: -1
+military_strategy
+  rotate: false
+  xy: 1203, 59
+  size: 240, 240
+  orig: 240, 240
+  offset: 0, 0
+  index: -1
+mount_slot
+  rotate: false
+  xy: 1505, 299
+  size: 260, 260
+  orig: 260, 260
+  offset: 0, 0
+  index: -1
+obsidianArmor
+  rotate: false
+  xy: 1443, 59
+  size: 240, 240
+  orig: 240, 240
+  offset: 0, 0
+  index: -1
+portrait
+  rotate: false
+  xy: 0, 299
+  size: 240, 240
+  orig: 240, 240
+  offset: 0, 0
+  index: -1
+portrait_frame
+  rotate: false
+  xy: 480, 299
+  size: 245, 245
+  orig: 245, 245
+  offset: 0, 0
+  index: -1
+redHare
+  rotate: false
+  xy: 240, 299
+  size: 240, 240
+  orig: 240, 240
+  offset: 0, 0
+  index: -1
+relationship_slot
+  rotate: false
+  xy: 1341, 0
+  size: 70, 46
+  orig: 70, 46
+  offset: 0, 0
+  index: -1
+return_button
+  rotate: false
+  xy: 1226, 0
+  size: 115, 45
+  orig: 115, 45
+  offset: 0, 0
+  index: -1
+scroll_bg
+  rotate: false
+  xy: 1475, 559
+  size: 336, 796
+  orig: 336, 796
+  offset: 0, 0
+  index: -1
+shortHorizontal
+  rotate: false
+  xy: 1481, 0
+  size: 67, 47
+  orig: 67, 47
+  offset: 0, 0
+  index: -1
+small_green_frame
+  rotate: false
+  xy: 1411, 0
+  size: 70, 46
+  orig: 70, 46
+  offset: 0, 0
+  index: -1
+special_bluegreen_frame
+  rotate: false
+  xy: 65, 59
+  size: 88, 59
+  orig: 88, 59
+  offset: 0, 0
+  index: -1
+stat_win
+  rotate: false
+  xy: 499, 59
+  size: 79, 79
+  orig: 79, 79
+  offset: 0, 0
+  index: -1
+tab_information
+  rotate: false
+  xy: 153, 59
+  size: 90, 66
+  orig: 90, 66
+  offset: 0, 0
+  index: -1
+tf_jizou
+  rotate: false
+  xy: 578, 59
+  size: 80, 80
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+tf_xiandeng
+  rotate: false
+  xy: 658, 59
+  size: 80, 80
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+tf_xianfa
+  rotate: false
+  xy: 738, 59
+  size: 80, 80
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+tf_xushi
+  rotate: false
+  xy: 818, 59
+  size: 80, 80
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+two_dashes
+  rotate: false
+  xy: 1548, 0
+  size: 100, 51
+  orig: 100, 51
+  offset: 0, 0
+  index: -1
+verticalSeparator
+  rotate: false
+  xy: 955, 59
+  size: 8, 195
+  orig: 8, 195
+  offset: 0, 0
+  index: -1

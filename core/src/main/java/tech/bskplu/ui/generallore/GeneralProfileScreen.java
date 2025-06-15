@@ -31,35 +31,11 @@ public class GeneralProfileScreen extends ApplicationAdapter {
     private Viewport viewport;
     private Skin skin;
     private BitmapFont font;
+    private TextureAtlas atlas;
 
-    // Textures (应通过 AssetManager 管理，此处为演示直接加载)
+    // Textures (应通过AssetManager管理，此处为演示直接加载)
     private Texture backgroundTexture;
-    private Texture portraitFrame;
     private Texture portraitTexture;
-    private Texture genderMaleTexture;// 性别男图标
-    // private Texture genderFemaleTexture;
-    private Texture greenBgTexture;// 技能绿色背景条
-    private Texture titleBgTexture;// 称号背景框 (如 "超级")
-    private Texture separatorTexture;// 大分割栏
-    private Texture textBoxBackgroundTexture;//势力、城市等内容的背景框
-    private Texture iconTroopTypeTexture, iconSpecialtyTexture, iconTroopCountTexture, iconMobilityTexture;// 部队-新增四个图标
-    private Texture twoDashesTexture;// 二分栏
-    private Texture smallGreenFrameTexture;
-    private Texture specialBlueGreenFrameTexture;
-    private Texture weaponSlotBgTexture, armorSlotBgTexture, mountSlotBgTexture, bookSlotBgTexture;// 装备槽背景
-    private Texture weaponItemTexture, armorItemTexture, mountItemTexture, bookItemTexture;// 装备物品图片
-    private Texture careerBoxBgTexture;// 战绩格子背景
-    private Texture buttonUpTexture, buttonDownTexture;// 按钮背景
-    private Texture generalFrameTexture;// 武将资料框
-    private Texture greenVerticalTexture;// 绿色竖条
-    private Texture biographyBgTexture;// 列传背景
-    private Texture tabInfoTexture;// 属性导航框
-
-    private Texture verticalSeparatorTexture;
-    private Texture shortHorizontalTexture;
-    private Texture iconTexture;
-    private Texture bigCareerBoxBgTexture;
-    private Texture returnButtonTexture;
 
     // 自定义雷达图 Actor
     private RadarChartActor radarChart;
@@ -68,14 +44,6 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
     // 类成员区，定义四个装备名称
     private List<String> equipmentNames = Arrays.asList("破军剑", "黯曜铠甲", "赤兔马", "兵书");
-
-    // UI元素引用 (如果需要动态修改)
-    private Label levelLabel, expLabel;
-    private Label forceValueLabel, cityValueLabel, salaryValueLabel;
-
-    // 体 武 知 德 统 政 忠 相性
-    private Label bodyLabel, martialLabel, intellectLabel, virtueLabel, leadershipLabel, politicsLabel, loyaltyLabel, affinityLabel;
-    private Label troopTypeLabel, specialtyLabel, troopCountLabel, mobilityLabel;
 
     // 武将技能组
     List<String> skills;
@@ -101,7 +69,15 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
 
         // 1. 加载资源
-        loadAssets(); // 加载纹理等
+        //loadAssets(); // 加载纹理等
+
+        Assets.inst().queue();
+        Assets.inst().finish();
+
+        atlas = Assets.inst().atlas();
+        backgroundTexture = Assets.inst().bg();
+        portraitTexture = Assets.inst().portrait();
+
 
         // 2. 创建 Skin
         createSkin();
@@ -138,134 +114,71 @@ public class GeneralProfileScreen extends ApplicationAdapter {
         rootTable.add(rightColumn).prefWidth(Value.percentWidth(0.30f, rootTable)).expandY().fillY().padRight(20).padTop(20).padBottom(20);
     }
 
-    private void loadAssets() {
-        // 素材纹理加载，建议使用AssetManager
-        try {
-            backgroundTexture = new Texture(Gdx.files.internal("bg_warlord_panel.png"));
-            portraitFrame = new Texture(Gdx.files.internal("portrait_frame.png"));
-            portraitTexture = new Texture(Gdx.files.internal("portrait.png"));
-            genderMaleTexture = new Texture(Gdx.files.internal("icon_male.png"));
-            separatorTexture = new Texture(Gdx.files.internal("divider_h.png"));
-            twoDashesTexture = new Texture(Gdx.files.internal("two_dashes.png"));
-
-            greenBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
-            titleBgTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
-            textBoxBackgroundTexture = new Texture(Gdx.files.internal("relationship_slot.png"));
-            smallGreenFrameTexture = new Texture(Gdx.files.internal("small_green_frame.png"));
-            specialBlueGreenFrameTexture = new Texture(Gdx.files.internal("special_bluegreen_frame.png"));
-            iconTroopTypeTexture = new Texture(Gdx.files.internal("tf_xiandeng.png"));
-            iconSpecialtyTexture  = new Texture(Gdx.files.internal("tf_xianfa.png"));
-            iconTroopCountTexture = new Texture(Gdx.files.internal("tf_xushi.png"));
-            iconMobilityTexture   = new Texture(Gdx.files.internal("tf_jizou.png"));
-
-            weaponSlotBgTexture = new Texture(Gdx.files.internal("equip_slot.png"));
-            armorSlotBgTexture = new Texture(Gdx.files.internal("armor_slot.png"));
-            mountSlotBgTexture = new Texture(Gdx.files.internal("mount_slot.png"));
-            bookSlotBgTexture = new Texture(Gdx.files.internal("accessory_slot.png"));
-
-            weaponItemTexture = new Texture(Gdx.files.internal("armyBreakingSword.png"));
-            armorItemTexture = new Texture(Gdx.files.internal("obsidianArmor.png"));
-            mountItemTexture = new Texture(Gdx.files.internal("redHare.png"));
-            // bookItemTexture = new Texture(Gdx.files.internal("military_strategy.png"));
-
-            careerBoxBgTexture = new Texture(Gdx.files.internal("stat_win.png"));
-            buttonUpTexture = new Texture(Gdx.files.internal("button_down.png"));
-            buttonDownTexture = new Texture(Gdx.files.internal("button_up.png"));
-            returnButtonTexture = new Texture(Gdx.files.internal("return_button.png"));
-            tabInfoTexture = new Texture(Gdx.files.internal("tab_information.png"));
-
-            generalFrameTexture = new Texture(Gdx.files.internal("generalFrame.png"));
-            greenVerticalTexture= new Texture(Gdx.files.internal("green_vertical.png"));
-            biographyBgTexture  = new Texture(Gdx.files.internal("scroll_bg.png"));
-            verticalSeparatorTexture = new Texture(Gdx.files.internal("verticalSeparator.png"));
-            shortHorizontalTexture = new Texture(Gdx.files.internal("shortHorizontal.png"));
-            bigCareerBoxBgTexture = new Texture(Gdx.files.internal("bigCareerBox.png"));
-            iconTexture = new Texture(Gdx.files.internal("icon.png"));
-
-            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
-            FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            param.size = 24;
-            param.magFilter = Texture.TextureFilter.Linear;
-            param.minFilter = Texture.TextureFilter.Linear;
-
-            param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
-                "/破兵书兔黯曜铠甲男野心亲密称号装列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
-                "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
-
-            // 字体初始化，默认Libgdx默认字体，不支持中文
-            font = generator.generateFont(param);
-            generator.dispose();
-
-        } catch (Exception e) {
-            Gdx.app.error("AssetLoad", "Error loading textures or font", e);
-        }
-    }
 
     private void createSkin() {
+
         skin = new Skin();
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        param.size = 24;
+        param.magFilter = Texture.TextureFilter.Linear;
+        param.minFilter = Texture.TextureFilter.Linear;
+
+        param.characters = FreeTypeFontGenerator.DEFAULT_CHARS +
+            "/破兵书兔黯曜铠甲男野心亲密称号装列剑传九爷洛月个固迅捷奇谋反铁勤双内连经验无官职柳岩妃子武将资料等级称号技能主公势力城市俸禄体知德统政忠相性部队兵种专精机动白胜利失败单挑计策战役击杀俘虏死亡外交成功生涯人物关系上一页下一页返回出仕超级人五行" +
+            "这里是的平事迹可以有很多行文字关羽约年本长后改云河东郡解县今山西运汉末名早期跟随刘备辗转各地曾被曹操擒于马坡斩袁绍大颜良张飞同为万人敌赤壁之助吴周瑜攻打南仁别遣绝北道阻挡援军退走任命襄阳太守入益州留荆建安二十四围樊派禁前来增获庞威震华夏想迁都避其锐徐晃吕蒙又偷袭腹背受";
+
+        // 字体初始化，默认Libgdx默认字体，不支持中文
+        font = generator.generateFont(param);
         skin.add("default-font", font, BitmapFont.class);
+        generator.dispose();
 
-        Label.LabelStyle defaultLabelStyle = new Label.LabelStyle(font, Color.WHITE);
-        skin.add("default", defaultLabelStyle);
 
-        Label.LabelStyle goldenLabelStyle = new Label.LabelStyle(font, Color.GOLD);
-        skin.add("golden", goldenLabelStyle);
+        /* ---------- 纯文字样式 ---------- */
+        skin.add("default", new Label.LabelStyle(font, Color.WHITE), Label.LabelStyle.class);
+        skin.add("golden",  new Label.LabelStyle(font, Color.GOLD),  Label.LabelStyle.class);
 
-        NinePatchDrawable skillBgDrawable = new NinePatchDrawable(new NinePatch(greenBgTexture, 6, 6, 2, 2));
-        Label.LabelStyle skillLabelStyle = new Label.LabelStyle(font, Color.WHITE);
-        skillLabelStyle.background = skillBgDrawable;
-        skin.add("skillStyle", skillLabelStyle);
+        /* ---------- 带 NinePatch 背景样式 ---------- */
+        addLabelWithPatch("titleBoxStyle", "relationship_slot", Color.BLACK);
+        addLabelWithPatch("superStyle", "small_green_frame", Color.WHITE);
+        addLabelWithPatch("lvlTitleStyle", "special_bluegreen_frame", Color.WHITE);
+        addLabelWithPatch("headerTitle", "generalFrame", Color.WHITE);
+        addLabelWithPatch("identityStyle", "two_dashes", Color.WHITE);
+        addLabelWithPatch("tabInfoStyle", "tab_information", Color.WHITE);
+        addLabelWithPatch("relationTitleStyle", "shortHorizontal", Color.RED);
 
-        NinePatchDrawable titleBgDrawable = new NinePatchDrawable(new NinePatch(titleBgTexture, 6, 6, 2, 2));
-        Label.LabelStyle titleLabelStyle = new Label.LabelStyle(font, Color.BLACK);
-        titleLabelStyle.background = titleBgDrawable;
-        skin.add("titleBoxStyle", titleLabelStyle);
+        /* ---------- 按钮样式 ---------- */
+        TextButton.TextButtonStyle btn = new TextButton.TextButtonStyle();
+        btn.font = font; btn.fontColor = Color.WHITE;
+        btn.up   = new TextureRegionDrawable(atlas.findRegion("button_up"));
+        btn.down = new TextureRegionDrawable(atlas.findRegion("button_down"));
+        btn.over = btn.down;
+        skin.add("default", btn, TextButton.TextButtonStyle.class);
 
-        TextureRegionDrawable textBoxDrawable = new TextureRegionDrawable(new TextureRegion(textBoxBackgroundTexture));
-        Label.LabelStyle contentBoxStyle = new Label.LabelStyle(font, Color.WHITE);
-        contentBoxStyle.background = textBoxDrawable;
-        skin.add("contentBoxStyle", contentBoxStyle);
+        TextButton.TextButtonStyle back = new TextButton.TextButtonStyle();
+        back.font = font; back.fontColor = Color.WHITE;
+        TextureRegionDrawable backDraw = new TextureRegionDrawable(atlas.findRegion("return_button"));
+        back.up = back.down = backDraw;
+        skin.add("backStyle", back, TextButton.TextButtonStyle.class);
 
-        NinePatchDrawable smallGreenBg = new NinePatchDrawable(new NinePatch(smallGreenFrameTexture, 4, 4, 4, 4));
-        Label.LabelStyle superStyle = new Label.LabelStyle(font, Color.WHITE);
-        superStyle.background = smallGreenBg;
-        skin.add("superStyle", superStyle);
-
-        NinePatchDrawable blueGreenBg = new NinePatchDrawable(new NinePatch(specialBlueGreenFrameTexture, 4, 4, 4, 4));
-        Label.LabelStyle lvlTitleStyle = new Label.LabelStyle(font, Color.WHITE);
-        lvlTitleStyle.background = blueGreenBg;
-        skin.add("lvlTitleStyle", lvlTitleStyle);
-
-        // 武将当前身份 素材（妃子？）
-        NinePatchDrawable identityBgDrawable = new NinePatchDrawable(new NinePatch(twoDashesTexture, 8, 8, 8, 8));
-        Label.LabelStyle identityStyle = new Label.LabelStyle(font, Color.WHITE);
-        identityStyle.background = identityBgDrawable;
-        skin.add("identityStyle", identityStyle);
-
-        // tab信息行(个人、能力、部队、装备、生涯的背景)
-        NinePatchDrawable tabInfoBg = new NinePatchDrawable(new NinePatch(tabInfoTexture, 8, 8, 8, 8));
-        Label.LabelStyle tabInfoStyle = new Label.LabelStyle(font, Color.WHITE);
-        tabInfoStyle.background = tabInfoBg;
-        skin.add("tabInfoStyle", tabInfoStyle);
-
-        TextButton.TextButtonStyle backButtonStyle = new TextButton.TextButtonStyle();
-        backButtonStyle.font = font;
-        backButtonStyle.fontColor = Color.WHITE;
-        backButtonStyle.up   = new TextureRegionDrawable(new TextureRegion(returnButtonTexture));
-        backButtonStyle.down = new TextureRegionDrawable(new TextureRegion(returnButtonTexture));
-        skin.add("backStyle", backButtonStyle);
-
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.font = font;
-        textButtonStyle.fontColor = Color.WHITE;
-        textButtonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonUpTexture));
-        textButtonStyle.down = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
-        textButtonStyle.over = new TextureRegionDrawable(new TextureRegion(buttonDownTexture));
-        skin.add("default", textButtonStyle);
-
-        ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
-        skin.add("default", scrollPaneStyle);
+        /* ---------- ScrollPaneStyle 占位 ---------- */
+        skin.add("default", new ScrollPane.ScrollPaneStyle(), ScrollPane.ScrollPaneStyle.class);
     }
+
+    /** 辅助：为 LabelStyle 设置 NinePatch 背景 */
+    private void addLabelWithPatch(String styleName, String regionName, Color fontColor) {
+        // 从 atlas 里取出普通的 TextureRegion
+        TextureRegion region = atlas.findRegion(regionName);
+        // 用你想要的四个边距手动构造 NinePatch：left、right、top、bottom
+        NinePatch patch = new NinePatch(region, 8, 8, 8, 8);
+        NinePatchDrawable bg   = new NinePatchDrawable(patch);
+
+        Label.LabelStyle style = new Label.LabelStyle(skin.getFont("default-font"), fontColor);
+        style.background = bg;
+        skin.add(styleName, style, Label.LabelStyle.class);
+    }
+
 
     private void populateLeftColumn(Table leftColumn) {
         leftColumn.top().pad(10);
@@ -274,11 +187,6 @@ public class GeneralProfileScreen extends ApplicationAdapter {
         Table headerRow = new Table(skin);
         headerRow.defaults().row();
 
-        // 顶部一级标题“武将资料”
-        Label.LabelStyle titleStyle = new Label.LabelStyle(font, Color.WHITE);
-        // 添加了名为 "GeneralFrame" 的背景素材(测试，后续统一管理)
-        titleStyle.background = new NinePatchDrawable(new NinePatch(generalFrameTexture, 8, 8, 8, 8));
-        skin.add("headerTitle", titleStyle);
         Label pageTitle = new Label("武将资料", skin, "headerTitle");
         pageTitle.setFontScale(1.8f);
         pageTitle.setAlignment(Align.center);
@@ -303,7 +211,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             final float OFFSET_X       = 20f; // 头像框相对于 Group 左侧的偏移
             final float INNER_OFFSET   = (FRAME_SIZE - IMAGE_SIZE) / 2f;
 
-            Image portraitBgImg = new Image(portraitFrame);
+            Image portraitBgImg = new Image(atlas.findRegion("portrait_frame"));
             portraitBgImg.setSize(FRAME_SIZE, FRAME_SIZE);
             portraitBgImg.setPosition(OFFSET_X, 0);
 
@@ -319,7 +227,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
         // 性别圆框
         Stack genderStack = new Stack();
-        Image genderIcon = new Image(genderMaleTexture);
+        Image genderIcon = new Image(atlas.findRegion("icon_male"));
 
         genderStack.add(genderIcon);
         Label genderText = new Label("男", new Label.LabelStyle(font, Color.WHITE));
@@ -332,19 +240,19 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
 
         // 出仕竖条
-        Label.LabelStyle greenBarStyle = new Label.LabelStyle(font, Color.GREEN);
+        Label.LabelStyle greenBarStyle = new Label.LabelStyle(font, Color.WHITE);
         greenBarStyle.background = new NinePatchDrawable(
-            new NinePatch(greenVerticalTexture, 4, 4, 4, 4)
+            new NinePatch(atlas.findRegion("green_vertical"), 4, 4, 4, 4)
         );
         skin.add("greenBar", greenBarStyle);
         Label statusBar = new Label("出仕", skin, "greenBar");
+        statusBar.setAlignment(Align.center);
         Container<Label> statusC = new Container<>(statusBar);
 
         // 不需要对statusC单独pad，由表格自己定位
         // 如果需要微调可在下面的表格cel里加 padLeft/padTop
         // infoTable是两列布局，左列内两个子行，右列是portraitGroup
         Table infoTable = new Table(skin);
-        //infoTable.defaults().fillX(); // 可选：两列都填满横向，可视情况加
 
         Table leftSideTable = new Table(skin);
         leftSideTable.defaults().uniformX().pad(5);
@@ -628,7 +536,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
         float iconSize = 64f;
 
         // （b）兵种 山军
-        troopsRow.add(new Image(iconTroopTypeTexture))
+        troopsRow.add(new Image(atlas.findRegion("tf_xiandeng")))
             .size(iconSize, iconSize)
             .padRight(5);
         troopsRow.add(new Label("兵种", skin, "golden"))
@@ -638,7 +546,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             .padRight(15);
 
         // （c）专精 剑
-        troopsRow.add(new Image(iconSpecialtyTexture))
+        troopsRow.add(new Image(atlas.findRegion("tf_xianfa")))
             .size(iconSize, iconSize)
             .padRight(5);
         troopsRow.add(new Label("专精", skin, "golden"))
@@ -648,7 +556,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             .padRight(15);
 
         // （d）兵力 3000
-        troopsRow.add(new Image(iconTroopCountTexture))
+        troopsRow.add(new Image(atlas.findRegion("tf_xushi")))
             .size(iconSize, iconSize)
             .padRight(5);
         troopsRow.add(new Label("兵力", skin, "golden"))
@@ -658,7 +566,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             .padRight(15);
 
         // （e）机动 20
-        troopsRow.add(new Image(iconMobilityTexture))
+        troopsRow.add(new Image(atlas.findRegion("tf_jizou")))
             .size(iconSize, iconSize)
             .padRight(5);
         troopsRow.add(new Label("机动", skin, "golden"))
@@ -698,7 +606,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             .row();
 
         // 大分割栏
-        middleColumn.add(new Image(separatorTexture))
+        middleColumn.add(new Image(atlas.findRegion("divider_h")))
             .fillX()
             .padTop(10)
             .padBottom(10)
@@ -721,22 +629,22 @@ public class GeneralProfileScreen extends ApplicationAdapter {
         Table equipGrid = new Table(skin);
         equipGrid.defaults().pad(15);
 
-        Texture[] slotBgTextures = new Texture[]{
-            weaponSlotBgTexture,
-            armorSlotBgTexture,
-            mountSlotBgTexture,
-            bookSlotBgTexture
+        TextureAtlas.AtlasRegion[] slotBgTextures = new TextureAtlas.AtlasRegion[]{
+            atlas.findRegion("equip_slot"),
+            atlas.findRegion("armor_slot"),
+            atlas.findRegion("mount_slot"),
+            atlas.findRegion("accessory_slot")
         };
-        Texture[] itemTextures = new Texture[]{
-            weaponItemTexture,
-            armorItemTexture,
-            mountItemTexture,
-            bookItemTexture
+        TextureAtlas.AtlasRegion[] itemTextures = new TextureAtlas.AtlasRegion[]{
+            atlas.findRegion("armyBreakingSword"),
+            atlas.findRegion("obsidianArmor"),
+            atlas.findRegion("redHare"),
+            atlas.findRegion("military_strategy")
         };
 
         for (int i = 0; i < slotBgTextures.length; i++) {
-            Texture slotBg = slotBgTextures[i];
-            Texture itemTex = itemTextures[i];
+            TextureAtlas.AtlasRegion slotBg = slotBgTextures[i];
+            TextureAtlas.AtlasRegion itemTex = itemTextures[i];
 
             Stack slot = new Stack();
 
@@ -784,7 +692,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             .row();
 
         // 大分割栏
-        middleColumn.add(new Image(separatorTexture))
+        middleColumn.add(new Image(atlas.findRegion("divider_h")))
             .fillX()
             .padTop(10)
             .padBottom(10)
@@ -827,9 +735,9 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
         for (int i = 0; i < careerStatNamesTop.length; i++) {
 
-            Texture bgTex = (i == careerStatNamesTop.length - 1)
-                ? bigCareerBoxBgTexture
-                : careerBoxBgTexture;
+            TextureAtlas.AtlasRegion bgTex = ((i == careerStatNamesTop.length - 1)
+                            ? atlas.findRegion("bigCareerBox")
+                            : atlas.findRegion("stat_win"));
 
             Image bgImg = new Image(bgTex);
             bgImg.setScaling(Scaling.stretch);
@@ -847,16 +755,16 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
                 statsTable
                     .add(statBox)
-                    .size(bgTex.getWidth(), bgTex.getHeight())
+                    .size(bgImg.getWidth(), bgImg.getHeight())
                     .padRight(5);
         }
         statsTable.row().padTop(5);
 
         for (int i = 0; i < careerStatNamesBottom.length; i++) {
 
-            Texture bgTex = (i == careerStatNamesBottom.length - 1)
-                ? bigCareerBoxBgTexture
-                : careerBoxBgTexture;
+            TextureAtlas.AtlasRegion bgTex = ((i == careerStatNamesBottom.length - 1)
+                            ? atlas.findRegion("bigCareerBox")
+                            : atlas.findRegion("stat_win"));
 
             Image bgImg = new Image(bgTex);
             bgImg.setScaling(Scaling.stretch);
@@ -873,7 +781,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
                 statsTable
                     .add(statBox)
-                    .size(bgTex.getWidth(), bgTex.getHeight())
+                    .size(bgImg.getWidth(), bgImg.getHeight())
                     .padRight(5);
         }
         statsTable.row();
@@ -884,7 +792,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             .expandY();
 
         // 竖直分隔线
-        Image vertSep1 = new Image(verticalSeparatorTexture);
+        Image vertSep1 = new Image(atlas.findRegion("verticalSeparator"));
         vertSep1.setScaling(Scaling.fillY);// 纵向填充
         row2.add(vertSep1)
             .fillY()
@@ -923,7 +831,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
             .expandY();
 
         // 竖直分隔线
-        Image vertSep2 = new Image(verticalSeparatorTexture);
+        Image vertSep2 = new Image(atlas.findRegion("verticalSeparator"));
         vertSep2.setScaling(Scaling.fillY);
         row2.add(vertSep2)
             .fillY()
@@ -937,22 +845,22 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
         Label.LabelStyle relLabelStyle = new Label.LabelStyle(font, Color.RED);
         relLabelStyle.background = new TextureRegionDrawable(
-            new TextureRegion(shortHorizontalTexture)
+            new TextureRegion(atlas.findRegion("shortHorizontal"))
         );
 
         Label relationLabel = new Label("关系", relLabelStyle);
         relationLabel.setAlignment(Align.center);
         relationColumn.add(relationLabel)
-            .minWidth(shortHorizontalTexture.getWidth())
-            .minHeight(shortHorizontalTexture.getHeight())
+            .minWidth(67)
+            .minHeight(47)
             .row();
 
         // 单独显示图标
-        Image relationIcon = new Image(iconTexture);
+        Image relationIcon = new Image(atlas.findRegion("icon"));
         relationIcon.setScaling(Scaling.fit);
         relationColumn.add(relationIcon)
-            .minWidth(iconTexture.getWidth())
-            .minHeight(iconTexture.getHeight())
+            .minWidth(65)
+            .minHeight(59)
             .row();
 
         // 把relationColumn加到row2的第三列
@@ -981,7 +889,7 @@ public class GeneralProfileScreen extends ApplicationAdapter {
         //rightColumn.setDebug(true);
 
         // ----- 列传显示区 -----
-        Image bioBgImage = new Image(biographyBgTexture);
+        Image bioBgImage = new Image(atlas.findRegion("scroll_bg"));
 
         String biographyExample = "这里是武将的生平事迹...\n" +
             "关羽（约160－220年），本字长生，后改字云长，河东郡解县（今山西运城）人。\n" +
@@ -1115,41 +1023,6 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
         if (backgroundTexture != null) backgroundTexture.dispose();
         if (portraitTexture != null) portraitTexture.dispose();
-        if (genderMaleTexture != null) genderMaleTexture.dispose();
-        if (greenBgTexture != null) greenBgTexture.dispose();
-        if (titleBgTexture != null) titleBgTexture.dispose();
-        if (textBoxBackgroundTexture != null) textBoxBackgroundTexture.dispose();
-        if (weaponSlotBgTexture != null) weaponSlotBgTexture.dispose();
-        if (armorSlotBgTexture != null) armorSlotBgTexture.dispose();
-        if (mountSlotBgTexture != null) mountSlotBgTexture.dispose();
-        if (bookSlotBgTexture != null) bookSlotBgTexture.dispose();
-        if (weaponItemTexture != null) weaponItemTexture.dispose();
-        if (armorItemTexture != null) armorItemTexture.dispose();
-        if (mountItemTexture != null) mountItemTexture.dispose();
-        // if (bookItemTexture != null) bookItemTexture.dispose();
-        if (careerBoxBgTexture != null) careerBoxBgTexture.dispose();
-        if (buttonUpTexture != null) buttonUpTexture.dispose();
-        if (buttonDownTexture != null) buttonDownTexture.dispose();
-        if (returnButtonTexture != null) returnButtonTexture.dispose();
-        if (iconTroopTypeTexture != null) iconTroopTypeTexture.dispose();
-        if (iconSpecialtyTexture  != null) iconSpecialtyTexture.dispose();
-        if (iconTroopCountTexture != null) iconTroopCountTexture.dispose();
-        if (iconMobilityTexture   != null) iconMobilityTexture.dispose();
-
-        if (generalFrameTexture  != null) generalFrameTexture.dispose();
-        if (greenVerticalTexture != null) greenVerticalTexture.dispose();
-        if (biographyBgTexture   != null) biographyBgTexture.dispose();
-        if (portraitFrame != null) portraitFrame.dispose();
-        if (separatorTexture != null) separatorTexture.dispose();
-        if (twoDashesTexture != null) twoDashesTexture.dispose();
-        if (smallGreenFrameTexture != null) smallGreenFrameTexture.dispose();
-        if (specialBlueGreenFrameTexture != null) specialBlueGreenFrameTexture.dispose();
-        if (verticalSeparatorTexture != null) verticalSeparatorTexture.dispose();
-        if (shortHorizontalTexture != null) shortHorizontalTexture.dispose();
-        if (bigCareerBoxBgTexture != null) bigCareerBoxBgTexture.dispose();
-        if (tabInfoTexture != null) tabInfoTexture.dispose();
-        if (iconTexture != null) iconTexture.dispose();
-
         if (radarChart != null) radarChart.dispose();
     }
 
