@@ -70,7 +70,6 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
         // 1. 加载资源
         //loadAssets(); // 加载纹理等
-
         Assets.inst().queue();
         Assets.inst().finish();
 
@@ -168,9 +167,9 @@ public class GeneralProfileScreen extends ApplicationAdapter {
 
     /** 辅助：为 LabelStyle 设置 NinePatch 背景 */
     private void addLabelWithPatch(String styleName, String regionName, Color fontColor) {
-        // 从 atlas 里取出普通的 TextureRegion
+        // 取出TextureRegion
         TextureRegion region = atlas.findRegion(regionName);
-        // 用你想要的四个边距手动构造 NinePatch：left、right、top、bottom
+        // 手动构造NinePatch left、right、top、bottom
         NinePatch patch = new NinePatch(region, 8, 8, 8, 8);
         NinePatchDrawable bg   = new NinePatchDrawable(patch);
 
@@ -1019,11 +1018,9 @@ public class GeneralProfileScreen extends ApplicationAdapter {
     public void dispose() {
         if (stage != null) stage.dispose();
         if (skin != null) skin.dispose();
-        if (font != null) font.dispose();
-
-        if (backgroundTexture != null) backgroundTexture.dispose();
-        if (portraitTexture != null) portraitTexture.dispose();
         if (radarChart != null) radarChart.dispose();
+
+        Assets.inst().dispose();
     }
 
     // --- 自定义雷达图 Actor ---
