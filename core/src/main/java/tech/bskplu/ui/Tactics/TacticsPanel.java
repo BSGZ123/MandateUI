@@ -27,6 +27,7 @@ public final class TacticsPanel extends ApplicationAdapter {
     private static final int GRID_ROWS = 11;
     private static final int PANEL_HEIGHT = 4;
     private static final boolean DEBUG_GRID = true;
+    private static final int CENTER_WIDTH = 3;
 
     private OrthographicCamera camera;
     private ExtendViewport viewport;
@@ -37,6 +38,10 @@ public final class TacticsPanel extends ApplicationAdapter {
     private Stack panelStack;// 底部16x4的操作区域Stack
     private Image panelBg;
     private Table uiTable;
+
+    private Table leftTable;
+    private Table centerTable;
+    private Table rightTable;
 
     private Texture panelTexture;
 
@@ -82,6 +87,30 @@ public final class TacticsPanel extends ApplicationAdapter {
         uiTable = new Table();
         uiTable.setFillParent(true);// 填充整个Stack
 
+
+        // 三个子表格
+        leftTable   = new Table();
+        centerTable = new Table();
+        rightTable  = new Table();
+
+        leftTable.debugTable();
+        centerTable.debugTable();
+        rightTable.debugTable();
+
+        // 把子表格按 6.5 : 3 : 6.5 布局
+        float sideWidth = (GRID_COLS - CENTER_WIDTH) / 2f;
+        uiTable.add(leftTable)
+            .width(sideWidth)
+            .expand().fill();
+        uiTable.add(centerTable)
+            .width(CENTER_WIDTH)
+            .expand().fill();
+        uiTable.add(rightTable)
+            .width(sideWidth)
+            .expand().fill();
+        uiTable.row();
+
+
         // 按顺序添加到Stack (背景在底层)
         panelStack.add(panelBg);
         panelStack.add(uiTable);
@@ -92,7 +121,7 @@ public final class TacticsPanel extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
+        //viewport.update(width, height, true);
         camera.position.set(viewport.getWorldWidth() / 2f,
             viewport.getWorldHeight() / 2f, 0);
         stage.getViewport().update(width, height, true);
