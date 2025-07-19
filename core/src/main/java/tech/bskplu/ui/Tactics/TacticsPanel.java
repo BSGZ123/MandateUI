@@ -2,178 +2,249 @@ package tech.bskplu.ui.Tactics;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /**
  * @ClassName: TacticsPanel
- * @Description: 小战场
+ * @Description: 小战场 (已重构为双Stage结构)
  * @Author BsKPLu
  * @Date 2025/6/28
- * @Version 1.2
+ * @Version 2.0
  */
 public final class TacticsPanel extends ApplicationAdapter {
 
-    private static final int GRID_COLS = 16;
-    private static final int GRID_ROWS = 11;
-    private static final int PANEL_HEIGHT = 4;
+    // --- 世界相关常量 ---
+    private static final int WORLD_GRID_COLS = 16;
+    private static final int WORLD_GRID_ROWS = 11;
     private static final boolean DEBUG_GRID = true;
-    private static final int CENTER_WIDTH = 3;
 
-    private OrthographicCamera camera;
-    private ExtendViewport viewport;
+    // --- UI相关常量 ---
+    private static final int UI_PANEL_HEIGHT_PX = 327;
+    private static final int UI_CENTER_WIDTH_PX = 1600;
+
+    // --- 舞台与视口 ---
+    private Stage worldStage;
+    private Stage uiStage;
+    private ExtendViewport worldViewport;
+    private ScreenViewport uiViewport;
+    private OrthographicCamera worldCamera;
+    private OrthographicCamera uiCamera;
+
+    // --- 调试与资源 ---
     private ShapeRenderer shapeRenderer;
-    private Stage stage;
+    private InputMultiplexer inputMultiplexer;
+    private BitmapFont buttonFont;
+    private Texture panelBgTexture, buttonNormalTexture, buttonCheckedTexture;
 
-    private Table gridTable;// 整个16x11的网格
-    private Stack panelStack;// 底部16x4的操作区域Stack
-    private Image panelBg;
-    private Table uiTable;
-
-    private Table leftTable;
-    private Table centerTable;
-    private Table rightTable;
-
-    private Texture panelTexture;
 
     @Override
     public void create() {
-        // 1. 摄像机 + ExtendViewport
-        camera = new OrthographicCamera();
-        viewport = new ExtendViewport(GRID_COLS, GRID_ROWS, camera);
-        camera.position.set(GRID_COLS / 2f, GRID_ROWS / 2f, 0);
+        // 初始化世界和UI
+        createWorld();
+        createUi();
 
-        if (DEBUG_GRID) shapeRenderer = new ShapeRenderer();
+        // 设置输入处理器，优先处理UI事件
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(uiStage);
+        inputMultiplexer.addProcessor(worldStage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
 
-        // 2. Stage
-        stage = new Stage(viewport);
-        Gdx.input.setInputProcessor(stage);
+    /**
+     * 创建游戏世界相关的舞台和演员
+     */
+    private void createWorld() {
+        worldCamera = new OrthographicCamera();
+        worldViewport = new ExtendViewport(WORLD_GRID_COLS, WORLD_GRID_ROWS, worldCamera);
+        worldStage = new Stage(worldViewport);
 
-        // 3. 创建16×11的调试网格
-        gridTable = new Table();
-        gridTable.setFillParent(true);
-        //gridTable.debugCell();
+        if (DEBUG_GRID) {
+            shapeRenderer = new ShapeRenderer();
+            // 创建16×11的调试网格
+            Table gridTable = new Table();
+            gridTable.setFillParent(true);
+            //gridTable.debugCell();
 
-        for (int r = 0; r < GRID_ROWS; r++) {
-            for (int c = 0; c < GRID_COLS; c++) {
-                gridTable.add().expand().fill();
+            for (int r = 0; r < WORLD_GRID_ROWS; r++) {
+                for (int c = 0; c < WORLD_GRID_COLS; c++) {
+                    gridTable.add().expand().fill();
+                }
+                gridTable.row();
             }
-            gridTable.row();
+            worldStage.addActor(gridTable);
         }
-        stage.addActor(gridTable);
+    }
 
-        // 4. 创建底部16×4操作面板堆栈
-        panelStack = new Stack();
-        stage.addActor(panelStack);
+    /**
+     * 创建UI相关的舞台和演员
+     */
+    private void createUi() {
+        uiCamera = new OrthographicCamera();
 
-        // 加载背景图
-        panelTexture = new Texture(Gdx.files.internal("tactics/bg_panel.png"));
-        panelTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        uiViewport = new ScreenViewport(uiCamera);
 
-        // 创建背景图
-        panelBg = new Image(panelTexture);
-        panelBg.setScaling(Scaling.stretch);// 确保背景图拉伸填充
+        uiStage = new Stage(uiViewport);
 
-        // 创建UI表格 (作为UI元素的容器)
-        uiTable = new Table();
-        uiTable.setFillParent(true);// 填充整个Stack
+        loadAssets();
 
+        Table rootUiTable = new Table();
+        rootUiTable.setFillParent(true);
+        rootUiTable.bottom();
+        uiStage.addActor(rootUiTable);
 
-        // 三个子表格
-        leftTable   = new Table();
-        centerTable = new Table();
-        rightTable  = new Table();
+        Stack panelStack = new Stack();
+        Image panelBgImage = new Image(panelBgTexture);
+        panelBgImage.setScaling(Scaling.stretch);
+        panelStack.add(panelBgImage);
 
-        leftTable.debugTable();
-        centerTable.debugTable();
-        rightTable.debugTable();
+        Table contentTable = new Table();
+        panelStack.add(contentTable);
 
-        // 把子表格按 6.5 : 3 : 6.5 布局
-        float sideWidth = (GRID_COLS - CENTER_WIDTH) / 2f;
-        uiTable.add(leftTable)
-            .width(sideWidth)
-            .expand().fill();
-        uiTable.add(centerTable)
-            .width(CENTER_WIDTH)
-            .expand().fill();
-        uiTable.add(rightTable)
-            .width(sideWidth)
-            .expand().fill();
-        uiTable.row();
+        rootUiTable.add(panelStack)
+            .growX()
+            .height(UI_PANEL_HEIGHT_PX);
 
+        Table leftTable = new Table();
+        Table centerTable = new Table();
+        Table rightTable = new Table();
 
-        // 按顺序添加到Stack (背景在底层)
-        panelStack.add(panelBg);
-        panelStack.add(uiTable);
+        // 使用像素宽度定义中间列，左右两列自适应填充
+        contentTable.add(leftTable).expandX().fill();
+        contentTable.add(centerTable).width(UI_CENTER_WIDTH_PX);
+        contentTable.add(rightTable).expandX().fill();
 
-        // 5. 初次计算面板尺寸位置
-        updatePanelBounds();
+        // 填充中央面板的按钮
+        populateCenterPanel(centerTable);
+    }
+
+    /**
+     * 填充中央操作区域的4x4按钮
+     * @param centerTable 中央布局表格
+     */
+    private void populateCenterPanel(Table centerTable) {
+        // 1. 创建按钮样式
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.font = buttonFont;
+        buttonStyle.fontColor = Color.WHITE;
+        buttonStyle.up = new TextureRegionDrawable(buttonNormalTexture);
+        buttonStyle.checked = new TextureRegionDrawable(buttonCheckedTexture);// 选中状态使用蓝色背景
+
+        // 2. 按钮文字和列分组
+        String[] buttonTexts = {"待", "进", "围", "退"};
+        // 为每一列创建一个按钮组，以确保每列只有一个按钮能被选中
+        ButtonGroup<TextButton>[] columnGroups = new ButtonGroup[4];
+        for (int i = 0; i < 4; i++) {
+            columnGroups[i] = new ButtonGroup<>();
+            columnGroups[i].setMaxCheckCount(1);// 最多一个被选中
+            columnGroups[i].setMinCheckCount(0);// 允许全部不选中 (若要强制一个被选中，设为1)
+        }
+
+        // 3. 创建并添加4x4按钮
+        TextButton[][] buttons = new TextButton[4][4];
+
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                TextButton button = new TextButton(buttonTexts[col], buttonStyle);
+                buttons[row][col] = button;
+
+                // 定义一个像素尺寸
+                float buttonSizePx = 64f;
+                centerTable.add(button).size(buttonSizePx).space(10f);// 64x64像素的按钮，10像素的间距
+
+                columnGroups[col].add(button);
+            }
+            centerTable.row();
+        }
+
+        // 4. 根据您的图片设置初始选中状态 (可选)
+        buttons[0][3].setChecked(true);
+        buttons[1][1].setChecked(true);
+        buttons[2][2].setChecked(true);
+        buttons[3][0].setChecked(true);
+    }
+
+    private void loadAssets() {
+        // 加载贴图
+        panelBgTexture = new Texture(Gdx.files.internal("tactics/bg_panel.png"));
+        buttonNormalTexture = new Texture(Gdx.files.internal("tactics/brown_square_bg.png"));
+        buttonCheckedTexture = new Texture(Gdx.files.internal("tactics/light_blue_frame_bg.png"));
+
+        // 生成字体
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 24;// 字体大小，可根据需要调整
+        parameter.characters = "待进围退";// 指定需要生成的字符
+        parameter.color = Color.WHITE;
+        parameter.borderWidth = 1;
+        parameter.borderColor = Color.BLACK;
+        buttonFont = generator.generateFont(parameter);
+        generator.dispose();// 生成后即可释放
     }
 
     @Override
     public void resize(int width, int height) {
-        //viewport.update(width, height, true);
-        camera.position.set(viewport.getWorldWidth() / 2f,
-            viewport.getWorldHeight() / 2f, 0);
-        stage.getViewport().update(width, height, true);
-        updatePanelBounds();
+        // 同步更新两个视口
+        worldViewport.update(width, height, true);
+        uiViewport.update(width, height, true);
     }
 
     @Override
     public void render() {
-        clearScreen();
-        viewport.apply();
-        camera.update();
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (DEBUG_GRID) drawDebugGrid();
+        // --- 渲染世界 ---
+        worldViewport.apply();
+        worldStage.act(Gdx.graphics.getDeltaTime());
+        worldStage.draw();
+        if (DEBUG_GRID) {
+            drawDebugGrid();
+        }
 
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+        // --- 渲染UI (UI会覆盖在世界上方) ---
+        uiViewport.apply();
+        uiStage.act(Gdx.graphics.getDeltaTime());
+        uiStage.draw();
     }
 
     @Override
     public void dispose() {
+        // 释放所有资源
+        if (worldStage != null) worldStage.dispose();
+        if (uiStage != null) uiStage.dispose();
         if (shapeRenderer != null) shapeRenderer.dispose();
-        if (panelTexture != null) panelTexture.dispose();
-        stage.dispose();
-    }
-
-    private void clearScreen() {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if (buttonFont != null) buttonFont.dispose();
+        if (panelBgTexture != null) panelBgTexture.dispose();
+        if (buttonNormalTexture != null) buttonNormalTexture.dispose();
+        if (buttonCheckedTexture != null) buttonCheckedTexture.dispose();
     }
 
     private void drawDebugGrid() {
-        float w = viewport.getWorldWidth();
-        float h = viewport.getWorldHeight();
-        float cellW = w / GRID_COLS;
-        float cellH = h / GRID_ROWS;
+        float w = worldViewport.getWorldWidth();
+        float h = worldViewport.getWorldHeight();
+        float cellW = w / WORLD_GRID_COLS;
+        float cellH = h / WORLD_GRID_ROWS;
 
-        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(worldCamera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
 
-        for (int i = 0; i <= GRID_COLS; i++) shapeRenderer.line(i * cellW, 0, i * cellW, h);
-        for (int j = 0; j <= GRID_ROWS; j++) shapeRenderer.line(0, j * cellH, w, j * cellH);
+        for (int i = 0; i <= WORLD_GRID_COLS; i++) shapeRenderer.line(i * cellW, 0, i * cellW, h);
+        for (int j = 0; j <= WORLD_GRID_ROWS; j++) shapeRenderer.line(0, j * cellH, w, j * cellH);
 
         shapeRenderer.end();
-    }
-
-    /**
-     * 根据当前世界宽度重新调整面板位置和大小
-     */
-    private void updatePanelBounds() {
-        float worldW = viewport.getWorldWidth();
-        panelStack.setSize(worldW, PANEL_HEIGHT);// 高度固定4世界单位
-        panelStack.setPosition(0, 0);// 左下角对齐
     }
 }
