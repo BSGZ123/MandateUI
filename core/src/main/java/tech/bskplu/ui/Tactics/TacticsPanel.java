@@ -126,7 +126,6 @@ public final class TacticsPanel extends ApplicationAdapter {
         contentTable.add(centerTable).width(UI_CENTER_WIDTH_PX);
         contentTable.add(rightTable).expandX().fill();
 
-        // 填充中央面板的按钮
         populateCenterPanel(centerTable);
     }
 
@@ -135,24 +134,24 @@ public final class TacticsPanel extends ApplicationAdapter {
      * @param centerTable 中央布局表格
      */
     private void populateCenterPanel(Table centerTable) {
-        // 1. 创建按钮样式
+        // 创建按钮样式
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = buttonFont;
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.up = new TextureRegionDrawable(buttonNormalTexture);
-        buttonStyle.checked = new TextureRegionDrawable(buttonCheckedTexture);// 选中状态使用蓝色背景
+        buttonStyle.checked = new TextureRegionDrawable(buttonCheckedTexture);
 
-        // 2. 按钮文字和列分组
+        // 按钮文字和列分组
         String[] buttonTexts = {"待", "进", "围", "退"};
-        // 为每一列创建一个按钮组，以确保每列只有一个按钮能被选中
-        ButtonGroup<TextButton>[] columnGroups = new ButtonGroup[4];
+        // 为每一行创建一个按钮组，以确保每行只有一个按钮能被选中
+        ButtonGroup<TextButton>[] rowGroups = new ButtonGroup[4];
         for (int i = 0; i < 4; i++) {
-            columnGroups[i] = new ButtonGroup<>();
-            columnGroups[i].setMaxCheckCount(1);// 最多一个被选中
-            columnGroups[i].setMinCheckCount(0);// 允许全部不选中 (若要强制一个被选中，设为1)
+            rowGroups[i] = new ButtonGroup<>();
+            rowGroups[i].setMaxCheckCount(1);// 最多一个被选中
+            rowGroups[i].setMinCheckCount(0);// 允许全部不选中 (若要强制一个被选中，设为1)
         }
 
-        // 3. 创建并添加4x4按钮
+        // 创建并添加4x4按钮
         TextButton[][] buttons = new TextButton[4][4];
 
         for (int row = 0; row < 4; row++) {
@@ -164,12 +163,11 @@ public final class TacticsPanel extends ApplicationAdapter {
                 float buttonSizePx = 64f;
                 centerTable.add(button).size(buttonSizePx).space(10f);// 64x64像素的按钮，10像素的间距
 
-                columnGroups[col].add(button);
+                rowGroups[row].add(button);
             }
             centerTable.row();
         }
 
-        // 4. 根据您的图片设置初始选中状态 (可选)
         buttons[0][3].setChecked(true);
         buttons[1][1].setChecked(true);
         buttons[2][2].setChecked(true);
@@ -185,13 +183,13 @@ public final class TacticsPanel extends ApplicationAdapter {
         // 生成字体
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 24;// 字体大小，可根据需要调整
-        parameter.characters = "待进围退";// 指定需要生成的字符
+        parameter.size = 24;
+        parameter.characters = "待进围退";
         parameter.color = Color.WHITE;
         parameter.borderWidth = 1;
         parameter.borderColor = Color.BLACK;
         buttonFont = generator.generateFont(parameter);
-        generator.dispose();// 生成后即可释放
+        generator.dispose();
     }
 
     @Override
