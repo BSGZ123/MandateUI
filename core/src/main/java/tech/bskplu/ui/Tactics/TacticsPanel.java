@@ -47,6 +47,7 @@ public final class TacticsPanel extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
     private InputMultiplexer inputMultiplexer;
     private BitmapFont buttonFont;
+    private BitmapFont generalFont;
     private Texture panelBgTexture, buttonNormalTexture, buttonCheckedTexture;
 
 
@@ -102,6 +103,7 @@ public final class TacticsPanel extends ApplicationAdapter {
 
         Table rootUiTable = new Table();
         rootUiTable.setFillParent(true);
+        //rootUiTable.setDebug(true);
         rootUiTable.bottom();
         uiStage.addActor(rootUiTable);
 
@@ -111,6 +113,7 @@ public final class TacticsPanel extends ApplicationAdapter {
         panelStack.add(panelBgImage);
 
         Table contentTable = new Table();
+        contentTable.setDebug(true);
         panelStack.add(contentTable);
 
         rootUiTable.add(panelStack)
@@ -122,12 +125,56 @@ public final class TacticsPanel extends ApplicationAdapter {
         Table rightTable = new Table();
 
         // 使用像素宽度定义中间列，左右两列自适应填充
-        contentTable.add(leftTable).expandX().fill();
+        contentTable.add(leftTable).grow();
         contentTable.add(centerTable).width(UI_CENTER_WIDTH_PX);
-        contentTable.add(rightTable).expandX().fill();
+        contentTable.add(rightTable).grow();
 
         populateCenterPanel(centerTable);
+        populateSidePanels(leftTable,rightTable);
     }
+
+    /**
+     * 填充左右两侧的面板容器
+     * @param leftContainer 左侧主要容器
+     * @param rightContainer 右侧主要容器
+     */
+    private void populateSidePanels(Table leftContainer, Table rightContainer){
+        // --- 左侧面板 ---
+        // 1.创建用于放置特殊元素的占位区
+        Table specialLeft = new Table();
+        specialLeft.setDebug(true);
+        specialLeft.add(new Label("特殊区域\n(左)", new Label.LabelStyle(generalFont, Color.WHITE))).center();
+
+        // 2.创建可复用的角色信息面板，并设置为'isLeft = true'(镜像)
+        Table commonLeft = createCharacterPanel(true);
+
+        // 3.将特殊区(15%)和通用区(85%)添加到左侧主容器
+        leftContainer.add(specialLeft).growY().width(Value.percentWidth(0.15f, leftContainer));
+        leftContainer.add(commonLeft).growY().width(Value.percentWidth(0.85f, leftContainer));
+
+        // --- 右侧面板 ---
+        // 1.创建用于放置特殊元素的占位区
+        Table specialRight = new Table();
+        specialRight.setDebug(true);
+        specialRight.add(new Label("特殊区域\n(右)", new Label.LabelStyle(generalFont, Color.WHITE))).center();
+
+        // 2.创建可复用的角色信息面板，并设置为'isLeft = false' (标准)
+        Table commonRight = createCharacterPanel(false);
+
+        // 3.将通用区(85%)和特殊区(15%)添加到右侧主容器
+        rightContainer.add(commonRight).growY().width(Value.percentWidth(0.85f, rightContainer));
+        rightContainer.add(specialRight).growY().width(Value.percentWidth(0.15f, rightContainer));
+    }
+
+    /**
+     * 创建可复用的角色信息面板
+     * @param isLeft 如果为true，则生成左侧的镜像布局；否则生成右侧的标准布局
+     * @return 一个包含角色信息的Table组件
+     */
+    private Table createCharacterPanel(boolean isLeft) {
+        return null;
+    }
+
 
     /**
      * 填充中央操作区域的4x4按钮
@@ -180,7 +227,7 @@ public final class TacticsPanel extends ApplicationAdapter {
         buttonNormalTexture = new Texture(Gdx.files.internal("tactics/brown_square_bg.png"));
         buttonCheckedTexture = new Texture(Gdx.files.internal("tactics/light_blue_frame_bg.png"));
 
-        // 生成字体
+        // 按钮字体
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 24;
@@ -189,6 +236,13 @@ public final class TacticsPanel extends ApplicationAdapter {
         parameter.borderWidth = 1;
         parameter.borderColor = Color.BLACK;
         buttonFont = generator.generateFont(parameter);
+
+        // 通用信息字体
+        parameter.size = 20;
+        parameter.characters = "长蛇术机平山排行内连知政神威德统武后大奇智100特殊区域()左右";
+        parameter.color = Color.WHITE;
+        parameter.borderWidth = 0;
+        generalFont = generator.generateFont(parameter);
         generator.dispose();
     }
 
