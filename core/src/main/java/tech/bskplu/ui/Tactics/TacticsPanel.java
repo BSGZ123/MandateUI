@@ -167,12 +167,57 @@ public final class TacticsPanel extends ApplicationAdapter {
     }
 
     /**
-     * 创建可复用的角色信息面板
+     * 创建可复用的角色信息面板 先占位后精细调整
      * @param isLeft 如果为true，则生成左侧的镜像布局；否则生成右侧的标准布局
      * @return 一个包含角色信息的Table组件
      */
     private Table createCharacterPanel(boolean isLeft) {
-        return null;
+        Table container = new Table();
+        container.setDebug(true);
+
+        Label.LabelStyle textStyle = new Label.LabelStyle(generalFont, Color.WHITE);
+        Label.LabelStyle titleStyle = new Label.LabelStyle(generalFont, Color.ORANGE);
+
+        // --- 顶部信息栏 ---
+        Table topBar = new Table();
+        topBar.add(new Label(isLeft ? "长蛇" : "雁行", textStyle)).pad(5);
+        topBar.add(new Label(isLeft ? "术 15" : "术 10", textStyle)).pad(5);
+        topBar.add(new Label(isLeft ? "机 20" : "机 16", textStyle)).pad(5);
+        topBar.add(new Label(isLeft ? "平" : "山", textStyle)).pad(5);
+
+        // --- 主内容区 ---
+        Table mainContent = new Table();
+        // 使用一个已有贴图作为角色头像的占位符
+        Image portraitPlaceholder = new Image(buttonNormalTexture);
+        // 属性信息表格
+        Table statsTable = new Table();
+        String[] statNames = isLeft ?
+            new String[]{"内连", "知", "政", "神威", "德", "统"} :
+            new String[]{"武后", "知", "大奇", "智神", "德", "统"};
+        for (int i = 0; i < statNames.length; i++) {
+            statsTable.add(new Label(statNames[i], titleStyle)).right().padRight(10);
+            statsTable.add(new Label("100", textStyle)).left().width(100);
+            if (i % 2 == 1) { // 每两个属性换一行
+                statsTable.row();
+            }
+        }
+
+        // 根据isLeft标志位，决定头像和属性的左右位置，实现镜像效果
+        if (isLeft) {
+            mainContent.add(portraitPlaceholder).size(160, 200).pad(10);// 尺寸占位
+            mainContent.add(statsTable).growX().left();
+        } else {
+            mainContent.add(statsTable).growX().right();
+            mainContent.add(portraitPlaceholder).size(160, 200).pad(10);// 尺寸占位
+        }
+
+        // --- 最终组装 ---
+        container.add(topBar).growX().left();// 顶部信息总是靠左对齐
+        container.row();
+        container.add(mainContent).grow();
+
+        return container;
+
     }
 
 
