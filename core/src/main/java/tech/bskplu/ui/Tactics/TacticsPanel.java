@@ -118,7 +118,7 @@ public final class TacticsPanel extends ApplicationAdapter {
 
         rootUiTable.add(panelStack)
             .growX()
-            .height(UI_PANEL_HEIGHT_PX);
+            .height(Value.percentHeight(0.3027f, rootUiTable));// 0.3027
 
         Table leftTable = new Table();
         Table centerTable = new Table();
