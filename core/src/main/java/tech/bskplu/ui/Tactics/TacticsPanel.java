@@ -126,7 +126,7 @@ public final class TacticsPanel extends ApplicationAdapter {
 
         // 使用像素宽度定义中间列，左右两列自适应填充
         contentTable.add(leftTable).grow();
-        contentTable.add(centerTable).width(UI_CENTER_WIDTH_PX);
+        contentTable.add(centerTable).grow().width(Value.percentWidth(0.2f, contentTable));
         contentTable.add(rightTable).grow();
 
         populateCenterPanel(centerTable);
