@@ -50,6 +50,12 @@ public final class TacticsPanel extends ApplicationAdapter {
     private BitmapFont generalFont;
     private Texture panelBgTexture, buttonNormalTexture, buttonCheckedTexture;
 
+    // --- 角色策略面板所需贴图资源 ---
+    private Texture greyBgTexture, purpleSquareBgTexture, formationBgTexture, totemIconTexture,
+        xuanIconTexture, portraitLeftTexture, portraitRightTexture, tagBgTexture,
+        crossedSwordsIcon, horseIcon, bowIcon, weaponIcon, panelDividerTexture,
+        skillBgTexture;
+
 
     @Override
     public void create() {
@@ -191,9 +197,64 @@ public final class TacticsPanel extends ApplicationAdapter {
     }
 
     private Table createTopInfoBar(boolean isLeft) {
-        return null;
+        Table topBar = new Table();
+        Label.LabelStyle textStyle = new Label.LabelStyle(generalFont, Color.WHITE);
+
+        // 阵型名称 (带背景)
+        Stack formationNameStack = new Stack();
+        formationNameStack.add(new Image(greyBgTexture));
+        formationNameStack.add(new Label(isLeft ? "长蛇" : "雁行", textStyle));
+
+        // 阵型属性 (术、机、平/山)
+        Table formationStatsTable = new Table();
+        String[] keys = isLeft ? new String[]{"术", "机", "平"} : new String[]{"术", "机", "山"};
+        String[] values = isLeft ? new String[]{"15", "20"} : new String[]{"10", "16"};
+
+        // 使用Stack实现复杂背景
+        Stack formationStatsStack = new Stack();
+        formationStatsStack.add(new Image(formationBgTexture));// 总背景
+        Table statsContent = new Table();
+        statsContent.add(createLabelWithBg(keys[0], purpleSquareBgTexture, textStyle)).padRight(5);
+        statsContent.add(new Label(values[0], textStyle)).padRight(10);
+        statsContent.add(createLabelWithBg(keys[1], purpleSquareBgTexture, textStyle)).padRight(5);
+        statsContent.add(new Label(values[1], textStyle)).padRight(10);
+        statsContent.add(createLabelWithBg(keys[2], purpleSquareBgTexture, textStyle));
+        formationStatsStack.add(statsContent);
+
+        // 玄器和图腾
+        Image totemImg = new Image(totemIconTexture);
+        Image xuanImg = new Image(xuanIconTexture);
+        Label hundredLabel = new Label("100", new Label.LabelStyle(generalFont, Color.RED));
+
+        // 组装顶部栏
+        if (isLeft) {
+            topBar.add(formationNameStack).padLeft(10);
+            topBar.add(formationStatsStack).padLeft(10);
+            topBar.add(totemImg).padLeft(10);
+            topBar.add(hundredLabel).padLeft(10);
+            topBar.add(xuanImg).padLeft(5).expandX().left();
+        } else {
+            // 右侧镜像布局
+            topBar.add(xuanImg).padRight(5).expandX().right();
+            topBar.add(hundredLabel).padRight(10);
+            topBar.add(totemImg).padRight(10);
+            topBar.add(formationStatsStack).padRight(10);
+            topBar.add(formationNameStack).padRight(10);
+        }
+
+        return topBar;
     }
 
+
+    /**
+     * 辅助方法: 创建一个带背景的标签
+     */
+    private Stack createLabelWithBg(String text, Texture bgTexture, Label.LabelStyle style) {
+        Stack stack = new Stack();
+        stack.add(new Image(bgTexture));
+        stack.add(new Label(text, style));
+        return stack;
+    }
 
     /**
      * 填充中央操作区域的4x4按钮
@@ -245,8 +306,11 @@ public final class TacticsPanel extends ApplicationAdapter {
         panelBgTexture = new Texture(Gdx.files.internal("tactics/bg_panel.png"));
         buttonNormalTexture = new Texture(Gdx.files.internal("tactics/brown_square_bg.png"));
         buttonCheckedTexture = new Texture(Gdx.files.internal("tactics/light_blue_frame_bg.png"));
+        greyBgTexture = new Texture(Gdx.files.internal("tactics/gray_bg_box.png"));
+        formationBgTexture = new Texture(Gdx.files.internal("tactics/bg_blue_dragon.png"));
 
-        // 按钮字体
+
+            // 按钮字体
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 24;
