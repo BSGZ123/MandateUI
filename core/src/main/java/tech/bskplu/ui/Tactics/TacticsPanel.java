@@ -282,12 +282,65 @@ public final class TacticsPanel extends ApplicationAdapter {
         return mainContent;
     }
 
+    /**
+     * 辅助方法: 创建兵种信息面板
+     */
     private Table createArmyGroup(boolean isLeft) {
-        return null;
+        Table armyTable = new Table();
+        //armyTable.setDebug(true);
+        Label.LabelStyle valueStyle = new Label.LabelStyle(generalFont, Color.CYAN);
+
+        Texture[] icons = new Texture[]{horseIcon, bowIcon, weaponIcon};
+
+        for (Texture icon : icons) {
+            Image icon1 = new Image(crossedSwordsIcon);
+            Label value = new Label("1000", valueStyle);
+            Image icon2 = new Image(icon);
+
+            if (isLeft) {
+                armyTable.add(icon1).pad(5);
+                armyTable.add(value).width(80).center();
+                armyTable.add(icon2).pad(5).expandX().left();
+            } else {
+                armyTable.add(icon2).pad(5).expandX().right();
+                armyTable.add(value).width(80).center();
+                armyTable.add(icon1).pad(5);
+            }
+            armyTable.row();
+        }
+        return armyTable;
     }
 
+    /**
+     * 辅助方法: 创建角色属性面板
+     */
     private Table createStatsGroup(boolean isLeft) {
-        return null;
+        Table statsTable = new Table();
+        //statsTable.setDebug(true);
+        Label.LabelStyle titleStyle = new Label.LabelStyle(generalFont, Color.ORANGE);
+        Label.LabelStyle valueStyle = new Label.LabelStyle(generalFont, Color.WHITE);
+
+        String[][] stats = isLeft ?
+            new String[][]{{"内连","100"}, {"知","100"}, {"政","100"}, {"神威","100"}, {"德","100"}, {"统","100"}} :
+            new String[][]{{"武后","100"}, {"知","100"}, {"大奇","100"}, {"智神","100"}, {"德","100"}, {"统","100"}};
+
+        for (String[] stat : stats) {
+            Stack skillStack = new Stack();
+            skillStack.add(new Image(skillBgTexture));
+            skillStack.add(new Label(stat[0], titleStyle));
+
+            Label valueLabel = new Label(stat[1], valueStyle);
+
+            if (isLeft) {
+                statsTable.add(skillStack).width(100).height(30).pad(5);
+                statsTable.add(valueLabel).left();
+            } else {
+                statsTable.add(valueLabel).right();
+                statsTable.add(skillStack).width(100).height(30).pad(5);
+            }
+            statsTable.row();
+        }
+        return statsTable;
     }
 
     /**
