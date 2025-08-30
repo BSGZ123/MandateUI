@@ -192,10 +192,11 @@ public final class TacticsPanel extends ApplicationAdapter {
 
     }
 
-    private Table createMainContentArea(boolean isLeft) {
-        return null;
-    }
-
+    /**
+     * 创建顶部信息栏
+     * @param isLeft
+     * @return
+     */
     private Table createTopInfoBar(boolean isLeft) {
         Table topBar = new Table();
         Label.LabelStyle textStyle = new Label.LabelStyle(generalFont, Color.WHITE);
@@ -254,6 +255,67 @@ public final class TacticsPanel extends ApplicationAdapter {
         stack.add(new Image(bgTexture));
         stack.add(new Label(text, style));
         return stack;
+    }
+
+    // 创建主内容区 (头像, 属性, 兵种)
+    private Table createMainContentArea(boolean isLeft) {
+        Table mainContent = new Table();
+        //mainContent.setDebug(true);
+
+        // 1. 创建三个核心组件
+        Table portraitGroup = createPortraitGroup(isLeft);
+        Table statsGroup = createStatsGroup(isLeft);
+        Table armyGroup = createArmyGroup(isLeft);
+
+        // 2. 根据isLeft标志位，决定三个组件的左右顺序，实现镜像效果
+        if (isLeft) {
+            mainContent.add(portraitGroup).width(160).pad(0, 5, 0, 10);
+            mainContent.add(new Image(panelDividerTexture)).width(2).growY().pad(10,0,20,0);
+            mainContent.add(statsGroup).expand().fill().padLeft(10);
+            mainContent.add(armyGroup).expand().fill().padLeft(10);
+        } else {
+            mainContent.add(armyGroup).expand().fill().padRight(10);
+            mainContent.add(statsGroup).expand().fill().padRight(10);
+            mainContent.add(new Image(panelDividerTexture)).width(2).growY().pad(10,0,20,0);
+            mainContent.add(portraitGroup).width(160).pad(0, 10, 0, 5);
+        }
+        return mainContent;
+    }
+
+    private Table createArmyGroup(boolean isLeft) {
+        return null;
+    }
+
+    private Table createStatsGroup(boolean isLeft) {
+        return null;
+    }
+
+    /**
+     * 辅助方法: 创建头像和名称组合
+     */
+    private Table createPortraitGroup(boolean isLeft) {
+        Table container = new Table();
+        Image portrait = new Image(isLeft ? portraitLeftTexture : portraitRightTexture);
+        portrait.setScaling(Scaling.fit);
+
+        // 这里暂时使用通用字体
+        Label nameLabel = new Label(isLeft ? "波多野结衣" : "苍井空", new Label.LabelStyle(generalFont, Color.WHITE));
+        Label tagLabel = new Label(isLeft ? "无风" : "暗天", new Label.LabelStyle(generalFont, Color.YELLOW));
+        Stack tagStack = new Stack(new Image(tagBgTexture), tagLabel);
+
+        Table nameTable = new Table();
+        if (isLeft) {
+            nameTable.add(nameLabel).left().padRight(10);
+            nameTable.add(tagStack).right();
+        } else {
+            nameTable.add(tagStack).left();
+            nameTable.add(nameLabel).right().padLeft(10);
+        }
+
+        container.add(portrait).size(160, 200);
+        container.row();
+        container.add(nameTable).growX().padTop(5);
+        return container;
     }
 
     /**
