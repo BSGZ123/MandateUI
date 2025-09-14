@@ -423,9 +423,21 @@ public final class TacticsPanel extends ApplicationAdapter {
         buttonCheckedTexture = new Texture(Gdx.files.internal("tactics/light_blue_frame_bg.png"));
         greyBgTexture = new Texture(Gdx.files.internal("tactics/gray_bg_box.png"));
         formationBgTexture = new Texture(Gdx.files.internal("tactics/bg_blue_dragon.png"));
+        purpleSquareBgTexture = new Texture(Gdx.files.internal("tactics/bg_purple_square.png"));
+        xuanIconTexture = new Texture(Gdx.files.internal("tactics/xuan_icon.png"));
+        totemIconTexture = new Texture(Gdx.files.internal("tactics/totem_icon.png"));
+        portraitRightTexture = new Texture(Gdx.files.internal("tactics/right_portrait.png"));
+        portraitLeftTexture = new Texture(Gdx.files.internal("tactics/left_portrait.png"));
+        tagBgTexture = new Texture(Gdx.files.internal("tactics/bg_tag.png"));
+        skillBgTexture = new Texture(Gdx.files.internal("tactics/bg_tag.png"));
+        panelDividerTexture = new Texture(Gdx.files.internal("tactics/verticalSeparator.png"));
+        crossedSwordsIcon = new Texture(Gdx.files.internal("tactics/crossed_swords_icon.png"));
+        horseIcon = new Texture(Gdx.files.internal("tactics/horse_icon.png"));
+        bowIcon = new Texture(Gdx.files.internal("tactics/bow_icon.png"));
+        weaponIcon = new Texture(Gdx.files.internal("tactics/weapon_icon.png"));
 
 
-            // 按钮字体
+        // 按钮字体
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Alibaba-PuHuiTi-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 24;
